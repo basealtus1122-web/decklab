@@ -1,0 +1,6 @@
+# 작업 원본 - 공개하지 않음
+*.xlsx
+ko_marvelcdb_all_cards.json
+*.backup.html
+# 편집용 원본. 배포본은 index.html
+marvel-champions-decklab-ko.html
