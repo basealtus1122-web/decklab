@@ -1,0 +1,62 @@
+// 덱랩 빌드: src/ 를 모아 배포용 index.html 한 장으로 만든다.
+//   npm install        (처음 한 번)
+//   npm run build      → index.html
+//   npm run watch      → src/ 가 바뀔 때마다 다시 만든다
+import * as esbuild from 'esbuild';
+import fs from 'node:fs';
+import path from 'node:path';
+
+const root = path.dirname(new URL(import.meta.url).pathname);
+const src = (...p) => path.join(root, 'src', ...p);
+const read = (p) => fs.readFileSync(p, 'utf8');
+
+// 인라인 <script>/<style> 안에서 태그가 닫히지 않게 한다
+const inlineJs = (code) => code.replace(/<\/(script)/gi, '<\\/$1');
+const inlineCss = (code) => code.replace(/<\/(style)/gi, '<\\/$1');
+
+const appOptions = {
+  entryPoints: [src('app', 'main.jsx')],
+  bundle: true,
+  write: false,
+  format: 'iife',
+  target: 'es2020',
+  charset: 'utf8',
+  minify: true,
+  legalComments: 'none',
+  jsx: 'transform',
+  jsxFactory: 'h',
+  jsxFragment: 'Fragment',
+  inject: [src('app', 'jsx-shim.js')],
+  logLevel: 'warning',
+};
+
+function assemble(appCode) {
+  const parts = {
+    tailwind: inlineCss(read(src('vendor', 'tailwind.css'))),
+    style: inlineCss(read(src('style.css'))),
+    vendor: inlineJs(read(src('vendor', 'libs.js'))),
+    app: inlineJs(appCode),
+  };
+  const html = read(src('index.html')).replace(/\/\*@(tailwind|style|vendor|app)\*\//g, (_, k) => parts[k]);
+  fs.writeFileSync(path.join(root, 'index.html'), html);
+  return html.length;
+}
+
+async function buildOnce() {
+  const t = Date.now();
+  const result = await esbuild.build(appOptions);
+  const size = assemble(result.outputFiles[0].text);
+  console.log(`index.html ${(size / 1024).toFixed(0)} KB (${Date.now() - t} ms)`);
+}
+
+if (process.argv.includes('--watch')) {
+  await buildOnce();
+  let timer = null;
+  fs.watch(src(), { recursive: true }, () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => buildOnce().catch((e) => console.error(e.message)), 100);
+  });
+  console.log('src/ 변경을 지켜보는 중… (Ctrl+C 로 종료)');
+} else {
+  await buildOnce();
+}
