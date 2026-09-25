@@ -61,18 +61,19 @@ export function useOnlineDeck({ heroes, hero, deck, setDeck, inDeck, onLoaded })
       .finally(() => setBusy(false));
   }
 
+  /** 코드로 덱을 불러온다. 성공하면 true 로 끝나는 Promise */
   function load(rawCode, key) {
     const code = String(rawCode || '')
       .trim()
       .toUpperCase();
     if (!DECK_CODE_RE.test(code)) {
       setStatus('덱 코드 형식이 올바르지 않습니다. 예: XDGD-QW4F');
-      return;
+      return Promise.resolve(false);
     }
-    if (busy) return;
+    if (busy) return Promise.resolve(false);
     setBusy(true);
     setStatus('불러오는 중…');
-    call('get', { code })
+    return call('get', { code })
       .then((j) => {
         const d = j.deck;
         if (!heroes.some((x) => x.id === d.hero)) throw new Error('이 덱의 히어로를 찾을 수 없습니다.');
@@ -93,15 +94,18 @@ export function useOnlineDeck({ heroes, hero, deck, setDeck, inDeck, onLoaded })
         }
         setLink({ code, key: k, readOnly: !k, copiedFrom: d.copiedFrom || '' });
         setCodeInput('');
-        onLoaded();
         setHash('#deck=' + code);
-        setStatus(
-          k
-            ? '내 덱을 불러왔습니다. 고친 뒤 저장하면 이 코드에 덮어씁니다.'
-            : '다른 사람의 덱이라 읽기 전용입니다. 저장하면 새 코드의 복사본이 만들어집니다.',
-        );
+        const message = k
+          ? '내 덱을 불러왔습니다. 고친 뒤 저장하면 이 코드에 덮어씁니다.'
+          : '다른 사람의 덱이라 읽기 전용입니다. 저장하면 새 코드의 복사본이 만들어집니다.';
+        setStatus(message);
+        onLoaded({ code, name: d.name, readOnly: !k, message });
+        return true;
       })
-      .catch((x) => setStatus(x.message))
+      .catch((x) => {
+        setStatus(x.message);
+        return false;
+      })
       .finally(() => setBusy(false));
   }
 

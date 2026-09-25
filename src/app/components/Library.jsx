@@ -1,7 +1,7 @@
 // 왼쪽 카드 목록: 검색, 필터, 정렬, 목록/카드 보기
 import { Checkbox, Icon } from '../vendor.js';
 import { DATA_DATE } from '../config.js';
-import { FACTION_LABEL, TYPE_LABEL, SORTS, cardName, costLabel } from '../cards.js';
+import { FACTION_LABEL, TYPE_LABEL, SORTS, cardImage, cardName, costLabel } from '../cards.js';
 import { Picker, QuantityButtons, resourceIcons } from './common.jsx';
 
 const COST_OPTIONS = [
@@ -17,7 +17,7 @@ const TYPE_FILTERS = [
   ['upgrade', '업그레이드'],
   ['support', '지원'],
   ['resource', '자원'],
-  ['player_side_scheme', '부가 음모'],
+  ['player_side_scheme', '플레이어 부가 음모'],
 ];
 
 export function Library({ cards, packs, shown, filters, setFilter, resetFilters, visible, showMore, hero, deck, onSetCount, onOpenCard, popup }) {
@@ -54,7 +54,7 @@ export function Library({ cards, packs, shown, filters, setFilter, resetFilters,
       <div className="togglebar">
         <div className="tgroup">
           <span className="tglabel">유형</span>
-          <button type="button" className={'tg' + (types.length ? '' : ' on')} aria-pressed={!types.length} onClick={() => setFilter('types', [])}>
+          <button type="button" className={'tg all' + (types.length ? '' : ' on')} aria-pressed={!types.length} onClick={() => setFilter('types', [])}>
             전부
           </button>
           {TYPE_FILTERS.map(([type, label]) => {
@@ -97,7 +97,7 @@ export function Library({ cards, packs, shown, filters, setFilter, resetFilters,
         <div className="sortbar">
           <span>정렬</span>
           <select className="sortsel" aria-label="정렬 기준" value={sortKey} onChange={(ev) => setFilter('sortKey', ev.target.value)}>
-            {SORTS.filter(([k]) => k !== 'resource').map(([k, label]) => (
+            {SORTS.map(([k, label]) => (
               <option key={k} value={k}>
                 {label}
               </option>
@@ -165,7 +165,8 @@ export function Library({ cards, packs, shown, filters, setFilter, resetFilters,
                   {FACTION_LABEL[c.faction]} · {TYPE_LABEL[c.type]}
                 </small>
                 {resourceIcons(c)}
-                <button className="cardtitle" onClick={() => onOpenCard(c)}>
+                {/* 카드 보기는 글자가 이미 다 보이므로, 카드 이미지가 있을 때만 팝업을 띄운다 */}
+                <button className="cardtitle" onClick={() => onOpenCard(c)} {...(cardImage(c) ? popup.bind(c) : {})}>
                   <h2>
                     {c.unique ? '◆ ' : ''}
                     {cardName(c)}

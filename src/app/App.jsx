@@ -2,12 +2,15 @@
 import { useState, useMemo, useEffect } from './vendor.js';
 import { canInclude, isExcludedSet, isSignature, listHeroes, matchesQuery, otherHeroFaces, sortCards, subdeckCards } from './cards.js';
 import { deckCards, deckSize, newDeck, parseDeckFile, validateDeck } from './deck.js';
+import { loadPrefs, savePrefs } from './online.js';
 import { useOnlineDeck } from './useOnlineDeck.js';
 import { useCardPopup, CardPopup } from './components/CardPopup.jsx';
 import { HeroPicker } from './components/HeroPicker.jsx';
 import { Library } from './components/Library.jsx';
 import { DeckPanel } from './components/DeckPanel.jsx';
 import { CardDetail } from './components/CardDetail.jsx';
+import { PublicDecks } from './components/PublicDecks.jsx';
+import { Stats } from './components/Stats.jsx';
 
 const PAGE = 24;
 
@@ -22,18 +25,26 @@ const DEFAULT_FILTERS = {
   sortDir: 'asc',
   view: 'list',
 };
+// 이 브라우저에 기억해 두는 화면 설정
+const REMEMBERED = ['sortKey', 'sortDir', 'view'];
 
 export function App({ cards }) {
   const heroes = useMemo(() => listHeroes(cards), [cards]);
   const heroSets = useMemo(() => new Set(heroes.map((h) => h.set)), [heroes]);
   const packs = useMemo(() => Array.from(new Set(cards.map((c) => c.pack))).sort(), [cards]);
+  const [prefs, setPrefs] = useState(loadPrefs);
 
   const [deck, setDeck] = useState(() => newDeck(cards, cards.find((c) => c.type === 'hero' && c.name === 'Groot').id));
-  const [filters, setFilters] = useState(DEFAULT_FILTERS);
+  const [filters, setFilters] = useState(() => {
+    const f = { ...DEFAULT_FILTERS };
+    for (const k of REMEMBERED) if (prefs[k]) f[k] = prefs[k];
+    return f;
+  });
   const [visible, setVisible] = useState(PAGE);
   const [detailCard, setDetailCard] = useState(null);
   const [notice, setNotice] = useState('');
-  const [heroPickerOpen, setHeroPickerOpen] = useState(true);
+  // 떠 있는 창: heroes(히어로 선택) | decks(공개 덱) | stats(인기 통계) | null
+  const [modal, setModal] = useState('heroes');
   const popup = useCardPopup();
 
   const hero = heroes.find((h) => h.id === deck.hero);
@@ -41,7 +52,25 @@ export function App({ cards }) {
   const size = deckSize(cards, deck);
   const issues = validateDeck(cards, hero, deck);
 
-  const online = useOnlineDeck({ heroes, hero, deck, setDeck, inDeck, onLoaded: () => setHeroPickerOpen(false) });
+  const online = useOnlineDeck({
+    heroes,
+    hero,
+    deck,
+    setDeck,
+    inDeck,
+    onLoaded: ({ name, message }) => {
+      setModal(null);
+      setNotice(`‘${name}’ — ${message}`);
+    },
+  });
+
+  const updatePrefs = (patch) => {
+    setPrefs((p) => {
+      const next = { ...p, ...patch };
+      savePrefs(next);
+      return next;
+    });
+  };
 
   // 주소에 #deck=코드(&key=편집키)가 있으면 그 덱을 불러온다
   useEffect(() => {
@@ -49,7 +78,7 @@ export function App({ cards }) {
     const code = /deck=([A-Za-z0-9-]{9})/.exec(hash);
     const key = /key=([a-f0-9]{40})/.exec(hash);
     if (code) {
-      setHeroPickerOpen(false);
+      setModal(null);
       online.load(code[1], key ? key[1] : '');
     }
   }, []);
@@ -81,6 +110,7 @@ export function App({ cards }) {
   const setFilter = (key, value, keepVisible) => {
     setFilters((f) => ({ ...f, [key]: value }));
     if (!keepVisible) setVisible(PAGE);
+    if (REMEMBERED.includes(key)) updatePrefs({ [key]: value });
   };
   const resetFilters = () => {
     setFilters((f) => ({ ...DEFAULT_FILTERS, sortKey: f.sortKey, sortDir: f.sortDir, view: f.view }));
@@ -136,6 +166,8 @@ export function App({ cards }) {
     }
   }
 
+  const closeModal = () => setModal(null);
+
   return (
     <main>
       <header className="topbar">
@@ -143,6 +175,14 @@ export function App({ cards }) {
           마블 챔피언스
           <br className="mobilebreak" /> 한글 덱 빌더
         </span>
+        <nav className="topnav">
+          <button type="button" className={modal === 'decks' ? 'on' : ''} onClick={() => setModal('decks')}>
+            공개 덱
+          </button>
+          <button type="button" className={modal === 'stats' ? 'on' : ''} onClick={() => setModal('stats')}>
+            인기 통계
+          </button>
+        </nav>
       </header>
       <div className="workspace">
         <Library
@@ -160,17 +200,31 @@ export function App({ cards }) {
           onOpenCard={setDetailCard}
           popup={popup}
         />
-        <CardPopup state={popup.state} />
-        {heroPickerOpen ? (
+        <CardPopup popup={popup} faces={(h) => otherHeroFaces(cards, h)} />
+        {modal === 'heroes' ? (
           <HeroPicker
             heroes={heroes}
             currentId={deck.hero}
+            popup={popup}
             onPick={(id) => {
               if (id !== deck.hero) changeHero(id);
-              setHeroPickerOpen(false);
+              closeModal();
             }}
-            onClose={() => setHeroPickerOpen(false)}
+            onClose={closeModal}
           />
+        ) : null}
+        {modal === 'decks' ? (
+          <PublicDecks
+            cards={cards}
+            heroes={heroes}
+            currentHero={hero}
+            popup={popup}
+            onLoad={(code) => online.load(code)}
+            onClose={closeModal}
+          />
+        ) : null}
+        {modal === 'stats' ? (
+          <Stats cards={cards} heroes={heroes} deckAspect={deck.aspect} popup={popup} onClose={closeModal} />
         ) : null}
         <DeckPanel
           cards={cards}
@@ -184,12 +238,15 @@ export function App({ cards }) {
           inDeck={inDeck}
           notice={notice}
           online={online}
-          onOpenHeroPicker={() => setHeroPickerOpen(true)}
+          onOpenHeroPicker={() => setModal('heroes')}
           onOpenCard={setDetailCard}
           onAdjust={adjustCount}
           onClearAdded={clearAdded}
           onImportFile={importFile}
           onNotice={setNotice}
+          grouping={prefs.deckGrouping || 'split'}
+          setGrouping={(g) => updatePrefs({ deckGrouping: g })}
+          popup={popup}
         />
       </div>
       <CardDetail card={detailCard} onClose={() => setDetailCard(null)} />

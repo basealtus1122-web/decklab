@@ -74,6 +74,12 @@ input {
   width: 100%;
   padding: 13px;
 }
+/* 위 input 규칙이 Tailwind 의 sr-only(화면에 안 보이게)보다 우선해서 숨긴 파일 칸이 화면 폭만큼 튀어나가던 것을 막는다 */
+input.sr-only {
+  width: 1px;
+  padding: 0;
+  border: 0;
+}
 a {
   color: #bfd5fa;
   text-underline-offset: 4px;
@@ -223,7 +229,7 @@ input:focus-visible,
   grid-template-columns: minmax(0, 1fr) 420px;
   gap: 22px;
   align-items: start;
-  max-width: 1680px;
+  max-width: 2400px;
   margin: auto;
   padding: 18px 24px;
 }
@@ -330,7 +336,7 @@ input:focus-visible,
   color: #141c28;
   font-weight: 600;
 }
-.tgroup .tg:first-of-type {
+.tg.all {
   font-weight: 600;
 }
 .tg.asp-aggression {
@@ -589,12 +595,15 @@ input:focus-visible,
 
 /* ---------------------------------------------------------------- 카드 보기 */
 .cardgrid {
+  /* 카드 최소 폭이 화면 폭을 따라 250~380px 로 커진다. 열 수는 남는 폭에 맞춰 정해진다 */
+  --card-w: clamp(250px, 15vw, 380px);
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(var(--card-w), 100%), 1fr));
   gap: 16px;
   margin-top: 18px;
 }
 .gamecard {
+  container-type: inline-size;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -633,7 +642,7 @@ input:focus-visible,
 .gamecard p {
   color: #d2dbe9;
   white-space: pre-line;
-  font-size: 15px;
+  font-size: clamp(15px, 4.4cqi, 17px);
   line-height: 1.7;
 }
 .gamecard small {
@@ -644,7 +653,7 @@ input:focus-visible,
 .gamecard h2 {
   margin: 13px 0 5px;
   padding-right: 20px;
-  font-size: 18px;
+  font-size: clamp(18px, 5.8cqi, 22px);
   line-height: 1.45;
 }
 .gamecard .reslist {
@@ -686,7 +695,7 @@ input:focus-visible,
 .gamecard .effect {
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 5;
+  -webkit-line-clamp: 6;
   overflow: hidden;
   margin: 10px 0 22px;
 }
@@ -738,7 +747,7 @@ footer p {
 /* ---------------------------------------------------------------- 카드 팝업 */
 .cardpop {
   position: fixed;
-  z-index: 60;
+  z-index: 90;
   width: 340px;
   max-height: min(320px, 92vh);
   overflow: hidden;
@@ -1640,16 +1649,408 @@ details.charts .chart {
   font-size: 13px;
 }
 
+/* ---------------------------------------------------------------- 상단 메뉴 */
+.topnav {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+.topnav button {
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--dl-dim);
+  background: var(--dl-surf);
+  border: 1px solid var(--dl-line2);
+  border-radius: 999px;
+}
+.topnav button:hover,
+.topnav button.on {
+  color: var(--dl-text);
+  background: var(--dl-surf2);
+  border-color: var(--dl-dim2);
+}
+
+/* ---------------------------------------------------------------- 팝업 확장: 히어로, 카드 이미지 */
+.cpside {
+  margin-top: 8px;
+  color: var(--dl-dim2);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+}
+.cpface {
+  margin-top: 8px;
+  padding-top: 2px;
+  border-top: 1px solid var(--dl-line);
+}
+.cpface .cpside {
+  color: var(--dl-text);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+.cpaspects {
+  padding: 0 4px;
+  font-style: normal;
+  color: #e0b052;
+  border: 1px solid #e0b052;
+  border-radius: 4px;
+}
+.cardpop.heropop {
+  width: 380px;
+  max-height: min(560px, 92vh);
+}
+.cardpop.heropop p {
+  line-height: 1.65;
+}
+/* 카드 이미지가 있으면: 보통 카드는 왼쪽에 이미지, 히어로는 위에 히어로·일상 두 장 */
+.cardpop.withimg {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  gap: 14px;
+  width: 580px;
+  max-height: min(460px, 92vh);
+}
+.cardpop.heropop.withimg {
+  display: block;
+  width: 420px;
+  max-height: min(720px, 94vh);
+}
+.cpimgs {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.heropop .cpimgs {
+  margin-bottom: 10px;
+}
+.cardimg {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 63 / 88;
+  object-fit: contain;
+  border-radius: 8px;
+  background: var(--dl-surf);
+}
+.heropop .cardimg {
+  flex: 0 0 calc(50% - 4px);
+}
+/* 이미지를 못 불러오면 글자만 보이는 모양으로 돌아간다 */
+.cardpop.withimg:has(.cpimgs:empty) {
+  display: block;
+  width: 340px;
+}
+.cardpop.heropop.withimg:has(.cpimgs:empty) {
+  width: 380px;
+}
+.cpimgs:empty {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- 덱 목록 보기 방식, 전용 표시 */
+.deckview {
+  column-span: all;
+  display: flex;
+  width: max-content;
+  margin: 6px 0 2px;
+  border: 1px solid var(--dl-line2);
+  border-radius: 7px;
+  overflow: hidden;
+}
+.deckview button {
+  padding: 3px 10px;
+  font: inherit;
+  font-size: 11.5px;
+  color: var(--dl-dim);
+  background: transparent;
+  border: 0;
+}
+.deckview button + button {
+  border-left: 1px solid var(--dl-line2);
+}
+.deckview button:hover {
+  color: var(--dl-text);
+}
+.deckview button.on {
+  color: #141c28;
+  background: var(--dl-text);
+  font-weight: 600;
+}
+.deckrow.sig {
+  margin-left: -6px;
+  padding-left: 4px;
+  border-left: 2px solid var(--f-hero);
+}
+.deckrow.sig .deckcard em {
+  color: var(--f-hero);
+}
+.siglegend {
+  column-span: all;
+  margin: 2px 0 0;
+  padding-left: 6px;
+  color: var(--dl-dim2);
+  font-size: 11px;
+  border-left: 2px solid var(--f-hero);
+}
+
+/* ---------------------------------------------------------------- 공개 덱, 인기 통계 창 */
+.hmbox.pdbox,
+.hmbox.stbox {
+  width: min(980px, 100%);
+}
+.hmhead .pdfilters {
+  flex: 1;
+  display: flex;
+  gap: 8px;
+  min-width: 0;
+}
+.pdfilters .sortsel {
+  max-width: 180px;
+  padding: 7px 8px;
+}
+.hmhead .sttabs {
+  margin-right: auto;
+}
+.hmempty,
+.pdempty {
+  grid-column: 1 / -1;
+  margin: 30px 0;
+  color: var(--dl-dim);
+  text-align: center;
+  font-size: 13px;
+}
+.pdbody {
+  padding: 8px 18px 14px;
+  overflow: auto;
+}
+.pdlist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.pdlist.stale {
+  opacity: 0.55;
+}
+.pdlist li {
+  border-bottom: 1px solid var(--dl-line);
+}
+.pdrow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 120px 96px 48px 82px 82px;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 6px;
+  text-align: left;
+  font: inherit;
+  font-size: 13px;
+  color: var(--dl-text);
+  background: transparent;
+  border: 0;
+}
+.pdrow:hover,
+.pdlist li.open .pdrow {
+  background: var(--dl-surf);
+}
+.pdname {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pdhero {
+  color: var(--dl-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pdaspects {
+  display: flex;
+  gap: 6px;
+}
+.pdcount,
+.pddate {
+  color: var(--dl-dim2);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.pdrow code {
+  color: var(--dl-dim2);
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+}
+.pdpreview {
+  padding: 4px 6px 14px;
+}
+.pdpreview.muted {
+  color: var(--dl-dim);
+  font-size: 12.5px;
+}
+.pdmemo {
+  margin: 4px 0 10px;
+  padding: 8px 10px;
+  color: var(--dl-text);
+  background: var(--dl-surf);
+  border-radius: 7px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+.pdcards {
+  column-width: 200px;
+  column-gap: 20px;
+}
+.pdgroup {
+  break-inside: avoid;
+  margin-bottom: 8px;
+}
+.pdgroup h4 {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 3px;
+  padding: 4px 0 3px;
+  color: #a9bbd3;
+  border-bottom: 1px solid var(--dl-line);
+  font-size: 12px;
+}
+.pdgroup h4 span {
+  font-weight: 400;
+}
+.pdcard {
+  padding: 1px 0;
+  color: var(--dl-text);
+  font-size: 12.5px;
+  cursor: default;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pdcard em {
+  display: inline-block;
+  min-width: 22px;
+  font-style: normal;
+  font-weight: 700;
+  color: var(--dl-dim2);
+}
+.pdcard:hover {
+  color: #fff;
+}
+.pdactions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  color: var(--dl-dim2);
+  font-size: 12px;
+}
+.pdactions .primary {
+  flex: none;
+}
+.pdbody .loadmore {
+  margin: 16px auto 4px;
+}
+
+.stbody {
+  padding-top: 12px;
+}
+.stchips {
+  margin-bottom: 10px;
+}
+.strows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.strows li {
+  display: grid;
+  grid-template-columns: 28px minmax(120px, 200px) minmax(0, 1fr) 150px;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--dl-line);
+  font-size: 13px;
+}
+.strank {
+  color: var(--dl-dim2);
+  font-size: 12px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.stname {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  color: var(--dl-text);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.stname small {
+  color: var(--dl-dim2);
+  font-size: 11px;
+  font-weight: 400;
+}
+.stname small .ctfac {
+  font-size: 11px;
+}
+.stcards .stname {
+  cursor: default;
+}
+.stbar {
+  display: block;
+  height: 10px;
+  background: var(--dl-surf);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.stfill {
+  display: flex;
+  height: 100%;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.stfill > span {
+  flex-basis: 0;
+}
+.stnum {
+  color: var(--dl-text);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.stnum small {
+  margin-left: 4px;
+  color: var(--dl-dim2);
+  font-size: 11px;
+  font-weight: 400;
+}
+.staspects {
+  grid-column: 3 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-top: -2px;
+}
+.staspects .ctfac {
+  font-size: 11px;
+  font-weight: 400;
+}
+.stnote {
+  margin: 12px 0 0;
+  color: var(--dl-dim2);
+  font-size: 11.5px;
+  line-height: 1.6;
+}
+
 /* ---------------------------------------------------------------- 화면 폭별 조정 */
-@media (min-width: 1400px) {
+/* 덱 목록 2열은 덱 패널이 500px 로 넓어질 때만 (그보다 좁으면 카드 이름이 너무 잘린다) */
+@media (min-width: 1700px) {
   .decklist {
     column-count: 2;
     column-gap: 18px;
-  }
-}
-@media (min-width: 1550px) {
-  .cardgrid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 @media (min-width: 1700px) {
@@ -1671,9 +2072,6 @@ details.charts .chart {
     position: static;
     max-height: none;
     overflow: visible;
-  }
-  .cardgrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -1708,8 +2106,8 @@ details.charts .chart {
     grid-template-columns: 104px minmax(0, 1fr) 52px 34px;
     font-size: 12.5px;
   }
-  .cttype,
-  .ctfac,
+  .ctrow .cttype,
+  .ctrow .ctfac,
   .cthead span:nth-child(5),
   .cthead span:nth-child(6) {
     display: none;
@@ -1723,14 +2121,63 @@ details.charts .chart {
   .cardpop {
     display: none;
   }
+  .topbar {
+    flex-wrap: wrap;
+  }
+  .hmhead {
+    flex-wrap: wrap;
+  }
+  .hmhead .pdfilters {
+    order: 3;
+    flex-basis: 100%;
+    flex-wrap: wrap;
+  }
+  .pdfilters .hmsearch {
+    flex-basis: 100%;
+  }
+  .pdfilters .sortsel {
+    flex: 1;
+    max-width: none;
+  }
+  .pdrow {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2px 10px;
+  }
+  .pdhero {
+    grid-row: 2;
+  }
+  .pdaspects {
+    grid-row: 2;
+    justify-content: flex-end;
+  }
+  .pdcount,
+  .pddate,
+  .pdrow code {
+    display: none;
+  }
+  .pdactions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .strows li {
+    grid-template-columns: 24px minmax(0, 1fr) 110px;
+  }
+  .strows .stbar {
+    grid-column: 2 / -1;
+    grid-row: 2;
+  }
+  .staspects {
+    grid-column: 2 / -1;
+  }
+  .stnum small {
+    display: block;
+    margin-left: 0;
+  }
 }
 
 @media (max-width: 480px) {
   .catalog-count {
     display: none;
-  }
-  .cardgrid {
-    grid-template-columns: 1fr;
   }
   .gamecard {
     min-height: 260px;

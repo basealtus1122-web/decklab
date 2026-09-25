@@ -88,6 +88,12 @@ input {
   width: 100%;
   padding: 13px;
 }
+/* 위 input 규칙이 Tailwind 의 sr-only(화면에 안 보이게)보다 우선해서 숨긴 파일 칸이 화면 폭만큼 튀어나가던 것을 막는다 */
+input.sr-only {
+  width: 1px;
+  padding: 0;
+  border: 0;
+}
 a {
   color: #bfd5fa;
   text-underline-offset: 4px;
@@ -237,7 +243,7 @@ input:focus-visible,
   grid-template-columns: minmax(0, 1fr) 420px;
   gap: 22px;
   align-items: start;
-  max-width: 1680px;
+  max-width: 2400px;
   margin: auto;
   padding: 18px 24px;
 }
@@ -344,7 +350,7 @@ input:focus-visible,
   color: #141c28;
   font-weight: 600;
 }
-.tgroup .tg:first-of-type {
+.tg.all {
   font-weight: 600;
 }
 .tg.asp-aggression {
@@ -603,12 +609,15 @@ input:focus-visible,
 
 /* ---------------------------------------------------------------- 카드 보기 */
 .cardgrid {
+  /* 카드 최소 폭이 화면 폭을 따라 250~380px 로 커진다. 열 수는 남는 폭에 맞춰 정해진다 */
+  --card-w: clamp(250px, 15vw, 380px);
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(var(--card-w), 100%), 1fr));
   gap: 16px;
   margin-top: 18px;
 }
 .gamecard {
+  container-type: inline-size;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -647,7 +656,7 @@ input:focus-visible,
 .gamecard p {
   color: #d2dbe9;
   white-space: pre-line;
-  font-size: 15px;
+  font-size: clamp(15px, 4.4cqi, 17px);
   line-height: 1.7;
 }
 .gamecard small {
@@ -658,7 +667,7 @@ input:focus-visible,
 .gamecard h2 {
   margin: 13px 0 5px;
   padding-right: 20px;
-  font-size: 18px;
+  font-size: clamp(18px, 5.8cqi, 22px);
   line-height: 1.45;
 }
 .gamecard .reslist {
@@ -700,7 +709,7 @@ input:focus-visible,
 .gamecard .effect {
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 5;
+  -webkit-line-clamp: 6;
   overflow: hidden;
   margin: 10px 0 22px;
 }
@@ -752,7 +761,7 @@ footer p {
 /* ---------------------------------------------------------------- 카드 팝업 */
 .cardpop {
   position: fixed;
-  z-index: 60;
+  z-index: 90;
   width: 340px;
   max-height: min(320px, 92vh);
   overflow: hidden;
@@ -1654,16 +1663,408 @@ details.charts .chart {
   font-size: 13px;
 }
 
+/* ---------------------------------------------------------------- 상단 메뉴 */
+.topnav {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+.topnav button {
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--dl-dim);
+  background: var(--dl-surf);
+  border: 1px solid var(--dl-line2);
+  border-radius: 999px;
+}
+.topnav button:hover,
+.topnav button.on {
+  color: var(--dl-text);
+  background: var(--dl-surf2);
+  border-color: var(--dl-dim2);
+}
+
+/* ---------------------------------------------------------------- 팝업 확장: 히어로, 카드 이미지 */
+.cpside {
+  margin-top: 8px;
+  color: var(--dl-dim2);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+}
+.cpface {
+  margin-top: 8px;
+  padding-top: 2px;
+  border-top: 1px solid var(--dl-line);
+}
+.cpface .cpside {
+  color: var(--dl-text);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+.cpaspects {
+  padding: 0 4px;
+  font-style: normal;
+  color: #e0b052;
+  border: 1px solid #e0b052;
+  border-radius: 4px;
+}
+.cardpop.heropop {
+  width: 380px;
+  max-height: min(560px, 92vh);
+}
+.cardpop.heropop p {
+  line-height: 1.65;
+}
+/* 카드 이미지가 있으면: 보통 카드는 왼쪽에 이미지, 히어로는 위에 히어로·일상 두 장 */
+.cardpop.withimg {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  gap: 14px;
+  width: 580px;
+  max-height: min(460px, 92vh);
+}
+.cardpop.heropop.withimg {
+  display: block;
+  width: 420px;
+  max-height: min(720px, 94vh);
+}
+.cpimgs {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.heropop .cpimgs {
+  margin-bottom: 10px;
+}
+.cardimg {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 63 / 88;
+  object-fit: contain;
+  border-radius: 8px;
+  background: var(--dl-surf);
+}
+.heropop .cardimg {
+  flex: 0 0 calc(50% - 4px);
+}
+/* 이미지를 못 불러오면 글자만 보이는 모양으로 돌아간다 */
+.cardpop.withimg:has(.cpimgs:empty) {
+  display: block;
+  width: 340px;
+}
+.cardpop.heropop.withimg:has(.cpimgs:empty) {
+  width: 380px;
+}
+.cpimgs:empty {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- 덱 목록 보기 방식, 전용 표시 */
+.deckview {
+  column-span: all;
+  display: flex;
+  width: max-content;
+  margin: 6px 0 2px;
+  border: 1px solid var(--dl-line2);
+  border-radius: 7px;
+  overflow: hidden;
+}
+.deckview button {
+  padding: 3px 10px;
+  font: inherit;
+  font-size: 11.5px;
+  color: var(--dl-dim);
+  background: transparent;
+  border: 0;
+}
+.deckview button + button {
+  border-left: 1px solid var(--dl-line2);
+}
+.deckview button:hover {
+  color: var(--dl-text);
+}
+.deckview button.on {
+  color: #141c28;
+  background: var(--dl-text);
+  font-weight: 600;
+}
+.deckrow.sig {
+  margin-left: -6px;
+  padding-left: 4px;
+  border-left: 2px solid var(--f-hero);
+}
+.deckrow.sig .deckcard em {
+  color: var(--f-hero);
+}
+.siglegend {
+  column-span: all;
+  margin: 2px 0 0;
+  padding-left: 6px;
+  color: var(--dl-dim2);
+  font-size: 11px;
+  border-left: 2px solid var(--f-hero);
+}
+
+/* ---------------------------------------------------------------- 공개 덱, 인기 통계 창 */
+.hmbox.pdbox,
+.hmbox.stbox {
+  width: min(980px, 100%);
+}
+.hmhead .pdfilters {
+  flex: 1;
+  display: flex;
+  gap: 8px;
+  min-width: 0;
+}
+.pdfilters .sortsel {
+  max-width: 180px;
+  padding: 7px 8px;
+}
+.hmhead .sttabs {
+  margin-right: auto;
+}
+.hmempty,
+.pdempty {
+  grid-column: 1 / -1;
+  margin: 30px 0;
+  color: var(--dl-dim);
+  text-align: center;
+  font-size: 13px;
+}
+.pdbody {
+  padding: 8px 18px 14px;
+  overflow: auto;
+}
+.pdlist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.pdlist.stale {
+  opacity: 0.55;
+}
+.pdlist li {
+  border-bottom: 1px solid var(--dl-line);
+}
+.pdrow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 120px 96px 48px 82px 82px;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 6px;
+  text-align: left;
+  font: inherit;
+  font-size: 13px;
+  color: var(--dl-text);
+  background: transparent;
+  border: 0;
+}
+.pdrow:hover,
+.pdlist li.open .pdrow {
+  background: var(--dl-surf);
+}
+.pdname {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pdhero {
+  color: var(--dl-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pdaspects {
+  display: flex;
+  gap: 6px;
+}
+.pdcount,
+.pddate {
+  color: var(--dl-dim2);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.pdrow code {
+  color: var(--dl-dim2);
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+}
+.pdpreview {
+  padding: 4px 6px 14px;
+}
+.pdpreview.muted {
+  color: var(--dl-dim);
+  font-size: 12.5px;
+}
+.pdmemo {
+  margin: 4px 0 10px;
+  padding: 8px 10px;
+  color: var(--dl-text);
+  background: var(--dl-surf);
+  border-radius: 7px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+.pdcards {
+  column-width: 200px;
+  column-gap: 20px;
+}
+.pdgroup {
+  break-inside: avoid;
+  margin-bottom: 8px;
+}
+.pdgroup h4 {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 3px;
+  padding: 4px 0 3px;
+  color: #a9bbd3;
+  border-bottom: 1px solid var(--dl-line);
+  font-size: 12px;
+}
+.pdgroup h4 span {
+  font-weight: 400;
+}
+.pdcard {
+  padding: 1px 0;
+  color: var(--dl-text);
+  font-size: 12.5px;
+  cursor: default;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pdcard em {
+  display: inline-block;
+  min-width: 22px;
+  font-style: normal;
+  font-weight: 700;
+  color: var(--dl-dim2);
+}
+.pdcard:hover {
+  color: #fff;
+}
+.pdactions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  color: var(--dl-dim2);
+  font-size: 12px;
+}
+.pdactions .primary {
+  flex: none;
+}
+.pdbody .loadmore {
+  margin: 16px auto 4px;
+}
+
+.stbody {
+  padding-top: 12px;
+}
+.stchips {
+  margin-bottom: 10px;
+}
+.strows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.strows li {
+  display: grid;
+  grid-template-columns: 28px minmax(120px, 200px) minmax(0, 1fr) 150px;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--dl-line);
+  font-size: 13px;
+}
+.strank {
+  color: var(--dl-dim2);
+  font-size: 12px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.stname {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  color: var(--dl-text);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.stname small {
+  color: var(--dl-dim2);
+  font-size: 11px;
+  font-weight: 400;
+}
+.stname small .ctfac {
+  font-size: 11px;
+}
+.stcards .stname {
+  cursor: default;
+}
+.stbar {
+  display: block;
+  height: 10px;
+  background: var(--dl-surf);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.stfill {
+  display: flex;
+  height: 100%;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.stfill > span {
+  flex-basis: 0;
+}
+.stnum {
+  color: var(--dl-text);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.stnum small {
+  margin-left: 4px;
+  color: var(--dl-dim2);
+  font-size: 11px;
+  font-weight: 400;
+}
+.staspects {
+  grid-column: 3 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-top: -2px;
+}
+.staspects .ctfac {
+  font-size: 11px;
+  font-weight: 400;
+}
+.stnote {
+  margin: 12px 0 0;
+  color: var(--dl-dim2);
+  font-size: 11.5px;
+  line-height: 1.6;
+}
+
 /* ---------------------------------------------------------------- 화면 폭별 조정 */
-@media (min-width: 1400px) {
+/* 덱 목록 2열은 덱 패널이 500px 로 넓어질 때만 (그보다 좁으면 카드 이름이 너무 잘린다) */
+@media (min-width: 1700px) {
   .decklist {
     column-count: 2;
     column-gap: 18px;
-  }
-}
-@media (min-width: 1550px) {
-  .cardgrid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 @media (min-width: 1700px) {
@@ -1685,9 +2086,6 @@ details.charts .chart {
     position: static;
     max-height: none;
     overflow: visible;
-  }
-  .cardgrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -1722,8 +2120,8 @@ details.charts .chart {
     grid-template-columns: 104px minmax(0, 1fr) 52px 34px;
     font-size: 12.5px;
   }
-  .cttype,
-  .ctfac,
+  .ctrow .cttype,
+  .ctrow .ctfac,
   .cthead span:nth-child(5),
   .cthead span:nth-child(6) {
     display: none;
@@ -1737,14 +2135,63 @@ details.charts .chart {
   .cardpop {
     display: none;
   }
+  .topbar {
+    flex-wrap: wrap;
+  }
+  .hmhead {
+    flex-wrap: wrap;
+  }
+  .hmhead .pdfilters {
+    order: 3;
+    flex-basis: 100%;
+    flex-wrap: wrap;
+  }
+  .pdfilters .hmsearch {
+    flex-basis: 100%;
+  }
+  .pdfilters .sortsel {
+    flex: 1;
+    max-width: none;
+  }
+  .pdrow {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2px 10px;
+  }
+  .pdhero {
+    grid-row: 2;
+  }
+  .pdaspects {
+    grid-row: 2;
+    justify-content: flex-end;
+  }
+  .pdcount,
+  .pddate,
+  .pdrow code {
+    display: none;
+  }
+  .pdactions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .strows li {
+    grid-template-columns: 24px minmax(0, 1fr) 110px;
+  }
+  .strows .stbar {
+    grid-column: 2 / -1;
+    grid-row: 2;
+  }
+  .staspects {
+    grid-column: 2 / -1;
+  }
+  .stnum small {
+    display: block;
+    margin-left: 0;
+  }
 }
 
 @media (max-width: 480px) {
   .catalog-count {
     display: none;
-  }
-  .cardgrid {
-    grid-template-columns: 1fr;
   }
   .gamecard {
     min-height: 260px;
@@ -1889,7 +2336,7 @@ lucide-react/dist/esm/lucide-react.mjs:
    *)
 */
 </script>
-<script>(()=>{var $=window.DecklabVendor,ce=$.React,{useState:w,useMemo:Z,useEffect:xe,useLayoutEffect:Rt,useRef:Ke,useCallback:It}=$.React,{createRoot:we}=$.ReactDOMClient,{Select:be,SelectTrigger:qe,SelectValue:ke,SelectContent:ve,SelectItem:Te,Checkbox:Ae,Progress:Se,Sheet:He,SheetContent:We,SheetHeader:Me,SheetTitle:Re,SheetDescription:Ie}=$.ui,C=$.icons;var e=ce.createElement,x=ce.Fragment;var Ee=[{id:"01050",name:"Hulk",subname:"Bruce Banner",subKo:"브루스 배너",nameKo:"헐크",text:`Forced Response: After Hulk attacks, discard the top card of your deck. If that card's printed resource has:
+<script>(()=>{var ne=window.DecklabVendor,we=ne.React,{useState:b,useMemo:se,useEffect:G,useLayoutEffect:Ie,useRef:de,useCallback:da}=ne.React,{createRoot:De}=ne.ReactDOMClient,{Select:Ce,SelectTrigger:Pe,SelectValue:Le,SelectContent:Ne,SelectItem:Fe,Checkbox:Xe,Progress:Ge,Sheet:Be,SheetContent:Ve,SheetHeader:Oe,SheetTitle:Je,SheetDescription:Ue}=ne.ui,B=ne.icons;var e=we.createElement,A=we.Fragment;var Ye=[{id:"01050",name:"Hulk",subname:"Bruce Banner",subKo:"브루스 배너",nameKo:"헐크",text:`Forced Response: After Hulk attacks, discard the top card of your deck. If that card's printed resource has:
 [physical] - Deal 2 damage to an enemy.
 [energy] - Deal 1 damage to each character.
 [mental] - Discard Hulk.
@@ -4536,14 +4983,14 @@ Your hero gets +1 ATK for each [crisis], [acceleration], [amplify], and [hazard]
 
 당신의 히어로는 플레이 영역에 있는 (위기 아이콘), (가속 아이콘), (증폭 아이콘), (수렁 아이콘) 마다 공격 +1을 받습니다 (최대 +4).`,traits:"Weapon.",traitsKo:"무기.",type:"upgrade",faction:"pool",set:"",pack:"Deadpool",cost:3,quantity:1,limit:1,unique:!1,permanent:!1,resources:{energy:1,physical:0,mental:0,wild:0},options:[],requirements:{},restrictions:{},alterText:"",sheet:"데드풀 팩",row:113,url:"https://marvelcdb.com/card/44055"},{id:"44056",name:"Rock, Paper, Scissors",subname:"",nameKo:"가위 바위 보",text:"Hero Action: Exhaust this card, choose 1 card in your hand, and discard the top card of your deck → using the diagram above, if a printed resource on the chosen card beats (points to) a printed resource on the discarded card, add the discarded card to your hand.",textKo:"히어로 행동: 이 카드를 소진하고 손에서 카드 1장을 선택하고 당신의 덱 맨 위 카드 1장을 버립니다. → 위의 그림을 참고하여 선택한 카드가 덱에서 버려진 카드를 이긴다면(가리킨다면), 버려진 카드를 손에 더합니다.",traits:"Metagame.",traitsKo:"메타게임.",type:"upgrade",faction:"pool",set:"",pack:"Deadpool",cost:1,quantity:1,limit:1,unique:!0,permanent:!1,resources:{energy:0,physical:0,mental:0,wild:1},options:[],requirements:{},restrictions:{},alterText:"",sheet:"데드풀 팩",row:115,url:"https://marvelcdb.com/card/44056"},{id:"44057",name:"Tic-Tac-Toe",subname:"",nameKo:"틱택토",text:"Hero Action: Spend 1 resource of any type → move 1 damage from a character to an empty space above matching the spent resource. If there are 3 damage tokens in a line, deal all damage on this card to an enemy and discard this card.",textKo:"히어로 행동: 아무 유형의 자원 하나를 소모 → 이 카드 위의 소모한 자원 유형과 같은 빈 칸에 캐릭터 하나가 입은 피해 1점을 가져와 놓음. 가로, 세로, 대각선 중 어느 한 방향으로 토큰 3개가 이어지면, 이 카드 위의 모든 피해를 적 하나에게 옮기고 이 카드를 버림.",traits:"Metagame.",traitsKo:"메타게임.",type:"upgrade",faction:"pool",set:"",pack:"Deadpool",cost:0,quantity:1,limit:1,unique:!0,permanent:!1,resources:{energy:0,physical:0,mental:1,wild:0},options:[],requirements:{},restrictions:{},alterText:"",sheet:"데드풀 팩",row:117,url:"https://marvelcdb.com/card/44057"},{id:"44058",name:"War",subname:"",nameKo:"전쟁",text:"Hero Action: Exhaust War → discard the top card of the encounter deck. Take 1 damage for each icon ([star] and [boost]) in the boost area of that card. Discard the top card of your deck. Deal damage to an enemy equal to that card's cost.",textKo:`* 강제 반응: 전쟁이 당신을 공격한 후, 전쟁의 남은 생명력이 1 이상이라면, 당신이 조종하는 업그레이드나 지원 하나를 버립니다.
 
-다른 빌런의 남은 생명력이 1 이상이라면 전쟁은 격파될 수 없습니다.`,traits:"Metagame.",traitsKo:"메타게임.",type:"upgrade",faction:"pool",set:"",pack:"Deadpool",cost:1,quantity:1,limit:1,unique:!0,permanent:!1,resources:{energy:0,physical:1,mental:0,wild:0},options:[],requirements:{},restrictions:{},alterText:"",sheet:"에이지 오브 아포칼립스 (빌런)",row:53,url:"https://marvelcdb.com/card/44058"}];var De="https://script.google.com/macros/s/AKfycbya8yeb6rLXzdeR8mFP2HQ-OUAokeBYTI0NW9_gE6oTPiPdwiDy0uEtclWy5T5Doi2o/exec";var Ce="2026.09.09",Pe="https://www.fantasyflightgames.com/en/news/2026/7/23/mission-updates/",le={myDecks:"decklab.mydecks",prefs:"decklab.prefs"};var qt=[[["avenger","어벤져스"]],[["hero for hire","용병 히어로"]],[["defense","방어"]],[["skill","기술"]],[["superpower","슈퍼파워"]],[["aerial","공중"]],[["attack","공격"]],[["persona","페르소나"]],[["item"],["item","도구"]],[["도구"],["armor","item","갑옷","도구"]],[["tech","과학"]],[["condition","상태"]],[["soldier","군인"]],[["spy","첩보원"]],[["thwart","저지"]],[["location","장소"]],[["갑옷","armor"],["armor","갑옷","도구"]],[["gamma","감마","감마선"]],[["wakanda","와칸다"]],[["genius","천재"]],[["tactic","전술"]],[["black panther","블랙 팬서"]],[["weapon","무기"]],[["defender","디펜더스"]],[["android","안드로이드"]],[["brute","야만"]],[["criminal","범죄자"]],[["hydra","하이드라"]],[["elite","간부"]],[["mercenary","용병"]],[["assassin","암살자"]],[["kree","크리"]],[["cyborg","사이보그"]],[["vehicle","탈것","탑승물"]],[["title","칭호"]],[["champion","챔피언","챔피언스"]],[["inhuman","인휴먼"]],[["bird","조류"]],[["robot","로봇"]],[["asgard","아스가르드"]],[["olympus","올림푸스"]],[["giant","거대","거인"]],[["preparation","대비"]],[["mystic","신비술사"]],[["주문"],["invocation","spell","마법","주문"]],[["spell","마법"],["spell","마법","주문"]],[["artifact","유물"]],[["invocation"],["invocation","주문"]],[["arrow","화살"]],[["ice","얼음"]],[["captive","포로"]],[["temporal","시간성"]],[["creature","창조물"]],[["tiny","미세"]],[["ants","개미"]],[["x-factor","엑스팩터"]],[["guardian","가디언"]],[["technique","테크닉"]],[["nova corps","노바 군단"]],[["space knight","스페이스 나이트"]],[["symbiote","심비오트"]],[["team","단체"]],[["vampire","뱀파이어"]],[["cosmic entity","우주적 존재"]],[["outlaw","무법자"]],[["civilian","민간인"]],[["web-warrior","웹-워리어즈"]],[["version 1","버전 1"]],[["version 2","버전 2"]],[["version 3","버전 3"]],[["cartoon","카툰"]],[["active","활성화"]],[["interface","인터페이스"]],[["spider","거미"]],[["x-men","엑스맨"]],[["training","훈련"]],[["psionic","사이오닉"]],[["dragon","드래곤"]],[["magnetic","자력"]],[["restrained","구속"]],[["phoenix","피닉스"]],[["weather","날씨"]],[["thief","도둑"]],[["guild","길드"]],[["x-force","엑스포스"]],[["posse","포시"]],[["psi-energy","사이오닉 에너지"]],[["excalibur","엑스칼리버"]],[["specialization","전문화"]],[["deadpool corps","데드풀 군단"]],[["zombie","좀비"]],[["metagame","메타게임"]],[["dimension","차원"]],[["new","신입"]],[["dora milaje","도라 밀라제"]],[["therapist","상담사"]],[["agent of atlas","에이전트 오브 아틀라스"]],[["defiant","저항"]],[["skrull","스크럴"]],[["shapeshift","변신"]],[["atlantis","아틀란티스"]],[["gift","선물"]],[["eternal","이터널"]],[["martial artist","무술가"]],[["sense","감각"]],[["attorney","변호사"]],[["midnight sun","미드나잇 선즈"]],[["dance","춤"]],[["maxim","좌우명"]]],ue={};for(let[t,r=t]of qt)for(let a of t)ue[a]=r;var Le={doctor_strange_invocation_deck:"doctor_strange",storm_weather_deck:"storm",iceman_frostbite:"iceman",hercules_labor_deck:"hercules",hercules_gift_deck:"hercules",daredevil_sense_deck:"daredevil"},ae=t=>/_leader$/.test(t||"")||t==="trickster_magic";var _=["aggression","justice","leadership","protection","pool"],W={aggression:"용맹",justice:"정의",leadership:"통솔",protection:"수호",pool:"'풀",basic:"기본",hero:"히어로"},re=[..._,"basic","hero"],Ge={aggression:"#f65c65",justice:"#e8c44e",leadership:"#639ae8",protection:"#59bc95",pool:"#b07cf0",basic:"#9eafc8",hero:"#57b394"},X={hero:"히어로",ally:"동료",event:"이벤트",support:"지원",upgrade:"업그레이드",resource:"자원",player_side_scheme:"플레이어 부가 음모"},Fe=["ally","event","support","upgrade","resource","player_side_scheme","hero"],j=[["physical","물리"],["energy","에너지"],["mental","정신"],["wild","만능"]],p=t=>t.nameKo||t.name,ne=t=>t.cost===-1?"X":t.cost==null?"—":t.cost,O=t=>t&&t.requirements&&t.requirements[0]&&t.requirements[0].aspects||1,A=(t,r)=>!!r&&!!t.set&&t.set===r.set&&t.type!=="hero",J=(t,r)=>r&&r.name==="Adam Warlock"&&t.faction!=="hero"?1:t.limit||3;function V(t,r,a){if(t.type==="hero"||ae(t.set))return!1;if(A(t,r))return!0;if(t.faction==="hero")return!1;let n=t.faction;switch(r.name){case"Spider-Woman":if(n===a.secondAspect)return!0;break;case"Adam Warlock":if(_.includes(n))return!0;break;case"Gamora":if(t.type==="event"&&/attack|thwart/i.test(t.traits))return!0;break;case"Cyclops":if(t.type==="ally"&&/x-men/i.test(t.traits))return!0;break;case"Cable":if(t.type==="player_side_scheme")return!0;break;case"Maria Hill":if(t.type==="support"&&/S.H.I.E.L.D./i.test(t.traits))return!0;break;case"Wonder Man":if(t.type==="event"&&(t.resources.energy||0)>0)return!0;break}return n==="basic"||n===a.aspect}function Be(t){let r={};for(let a of t)a.type==="hero"&&(!r[a.set]||a.id<r[a.set].id)&&(r[a.set]=a);return t.filter(a=>a.type==="hero"&&r[a.set]===a).sort((a,n)=>+!!n.nameKo-+!!a.nameKo||p(a).localeCompare(p(n),"ko"))}var _e=(t,r)=>r?t.filter(a=>a.type==="hero"&&a.set===r.set&&a.id!==r.id).sort((a,n)=>a.id<n.id?-1:1):[],Ve=(t,r)=>r?t.filter(a=>Le[a.set]===r.set):[];function je(t,r){let a=(r||"").toLowerCase().trim();if(!a||[t.name,t.nameKo,t.text,t.textKo,t.traits,t.traitsKo].join(" ").toLowerCase().includes(a))return!0;let s=ue[a];if(!s)return!1;let m=[t.traits,t.traitsKo,t.textKo].join(" ").toLowerCase();return s.some(c=>m.includes(c))}var Xe=t=>t.cost==null?900:t.cost===-1?800:t.cost;function Ne(t){let r=t.resources||{},a=j.findIndex(([s])=>r[s]>0);if(a<0)return null;let n=j.reduce((s,[m])=>s+(r[m]||0),0);return a*100+n}var Oe=[["name","이름"],["cost","비용"],["resource","자원"],["faction","성향"],["type","유형"]];function Je(t,r,a){let n=a==="desc"?-1:1,s=(m,c)=>p(m).localeCompare(p(c),"ko");return t.sort((m,c)=>{let u=0;if(r==="cost"){let i=Xe(m),l=Xe(c);if(i>=800||l>=800)return i===l?s(m,c):i-l;u=i-l}else if(r==="resource"){let i=Ne(m),l=Ne(c);if(i==null||l==null)return i===l?s(m,c):i==null?1:-1;u=i-l}else r==="faction"?u=re.indexOf(m.faction)-re.indexOf(c.faction):r==="type"&&(u=Fe.indexOf(m.type)-Fe.indexOf(c.type));return(u||s(m,c))*n})}var me=40,U=50;function de(t,r){let a=t.find(n=>n.id===r);return{version:1,name:`${p(a)}의 덱`,hero:r,aspect:"protection",secondAspect:"justice",counts:Object.fromEntries(t.filter(n=>A(n,a)).map(n=>[n.id,n.quantity]))}}var se=(t,r)=>t.reduce((a,n)=>a+(n.permanent?0:r.counts[n.id]||0),0),pe=(t,r)=>t.filter(a=>r.counts[a.id]);function Ue(t,r,a){let n=[],s=se(t,a);s<me&&n.push(`덱에 ${me-s}장을 더 추가하세요. (${me}–${U}장)`),s>U&&n.push(`덱이 ${s-U}장 초과했습니다.`);let m={};for(let c of t){let u=a.counts[c.id]||0;u&&(m[c.name]=(m[c.name]||0)+u,V(c,r,a)||n.push(`${p(c)}: 선택한 히어로·성향에 맞지 않습니다.`))}for(let c of t.filter(u=>a.counts[u.id])){let u=J(c,r);m[c.name]>u&&!n.some(i=>i.startsWith(p(c)+": 수량"))&&n.push(`${p(c)}: 수량 제한 ${u}장을 초과했습니다.`)}if(t.some(c=>A(c,r)&&(a.counts[c.id]||0)!==c.quantity)&&n.push("히어로 전용 카드 구성을 확인하세요."),r.name==="Gamora"&&t.reduce((u,i)=>u+(i.faction!=="hero"&&i.faction!=="basic"&&i.faction!==a.aspect&&a.counts[i.id]||0),0)>6&&n.push("가모라의 다른 성향 이벤트는 최대 6장입니다."),r.name==="Spider-Woman"&&a.aspect===a.secondAspect&&n.push("스파이더우먼은 서로 다른 성향 2개를 선택해야 합니다."),r.name==="Adam Warlock"){let c=_.map(u=>t.reduce((i,l)=>i+(l.faction===u&&a.counts[l.id]||0),0)).filter(u=>u>0);(c.length>4||c.length===4&&new Set(c).size!==1)&&n.push("아담 워록은 성향 4개('풀 포함 5개 중)에서 같은 장수씩 넣어야 합니다.")}return n}function Ye(t,r){if(!t||typeof t!="object")throw Error("덱 파일 형식이 올바르지 않습니다.");if(t.version!==1||typeof t.name!="string"||t.name.length>100||!r.some(n=>n.id===t.hero&&n.type==="hero")||!_.includes(t.aspect)||!t.counts||typeof t.counts!="object"||Array.isArray(t.counts))throw Error("지원하지 않는 덱 파일입니다.");let a={};for(let[n,s]of Object.entries(t.counts)){if(!r.some(m=>m.id===n&&m.type!=="hero")||!Number.isInteger(s)||s<0||s>99)throw Error("알 수 없는 카드 또는 잘못된 수량이 있습니다.");s&&(a[n]=s)}return{version:1,name:t.name,hero:t.hero,aspect:t.aspect,secondAspect:_.includes(t.secondAspect)?t.secondAspect:"justice",counts:a}}function ze(t,r,a){let n=pe(t,a);return`${a.name}
-히어로: ${p(r)}
-성향: ${W[a.aspect]}
-총 ${se(t,a)}장 (영속 제외)
+다른 빌런의 남은 생명력이 1 이상이라면 전쟁은 격파될 수 없습니다.`,traits:"Metagame.",traitsKo:"메타게임.",type:"upgrade",faction:"pool",set:"",pack:"Deadpool",cost:1,quantity:1,limit:1,unique:!0,permanent:!1,resources:{energy:0,physical:1,mental:0,wild:0},options:[],requirements:{},restrictions:{},alterText:"",sheet:"에이지 오브 아포칼립스 (빌런)",row:53,url:"https://marvelcdb.com/card/44058"}];var ze="https://script.google.com/macros/s/AKfycbya8yeb6rLXzdeR8mFP2HQ-OUAokeBYTI0NW9_gE6oTPiPdwiDy0uEtclWy5T5Doi2o/exec";var Qe="2026.09.09",$e="https://www.fantasyflightgames.com/en/news/2026/7/23/mission-updates/",oe={myDecks:"decklab.mydecks",prefs:"decklab.prefs"};var Ot=[[["avenger","어벤져스"]],[["hero for hire","용병 히어로"]],[["defense","방어"]],[["skill","기술"]],[["superpower","슈퍼파워"]],[["aerial","공중"]],[["attack","공격"]],[["persona","페르소나"]],[["item"],["item","도구"]],[["도구"],["armor","item","갑옷","도구"]],[["tech","과학"]],[["condition","상태"]],[["soldier","군인"]],[["spy","첩보원"]],[["thwart","저지"]],[["location","장소"]],[["갑옷","armor"],["armor","갑옷","도구"]],[["gamma","감마","감마선"]],[["wakanda","와칸다"]],[["genius","천재"]],[["tactic","전술"]],[["black panther","블랙 팬서"]],[["weapon","무기"]],[["defender","디펜더스"]],[["android","안드로이드"]],[["brute","야만"]],[["criminal","범죄자"]],[["hydra","하이드라"]],[["elite","간부"]],[["mercenary","용병"]],[["assassin","암살자"]],[["kree","크리"]],[["cyborg","사이보그"]],[["vehicle","탈것","탑승물"]],[["title","칭호"]],[["champion","챔피언","챔피언스"]],[["inhuman","인휴먼"]],[["bird","조류"]],[["robot","로봇"]],[["asgard","아스가르드"]],[["olympus","올림푸스"]],[["giant","거대","거인"]],[["preparation","대비"]],[["mystic","신비술사"]],[["주문"],["invocation","spell","마법","주문"]],[["spell","마법"],["spell","마법","주문"]],[["artifact","유물"]],[["invocation"],["invocation","주문"]],[["arrow","화살"]],[["ice","얼음"]],[["captive","포로"]],[["temporal","시간성"]],[["creature","창조물"]],[["tiny","미세"]],[["ants","개미"]],[["x-factor","엑스팩터"]],[["guardian","가디언"]],[["technique","테크닉"]],[["nova corps","노바 군단"]],[["space knight","스페이스 나이트"]],[["symbiote","심비오트"]],[["team","단체"]],[["vampire","뱀파이어"]],[["cosmic entity","우주적 존재"]],[["outlaw","무법자"]],[["civilian","민간인"]],[["web-warrior","웹-워리어즈"]],[["version 1","버전 1"]],[["version 2","버전 2"]],[["version 3","버전 3"]],[["cartoon","카툰"]],[["active","활성화"]],[["interface","인터페이스"]],[["spider","거미"]],[["x-men","엑스맨"]],[["training","훈련"]],[["psionic","사이오닉"]],[["dragon","드래곤"]],[["magnetic","자력"]],[["restrained","구속"]],[["phoenix","피닉스"]],[["weather","날씨"]],[["thief","도둑"]],[["guild","길드"]],[["x-force","엑스포스"]],[["posse","포시"]],[["psi-energy","사이오닉 에너지"]],[["excalibur","엑스칼리버"]],[["specialization","전문화"]],[["deadpool corps","데드풀 군단"]],[["zombie","좀비"]],[["metagame","메타게임"]],[["dimension","차원"]],[["new","신입"]],[["dora milaje","도라 밀라제"]],[["therapist","상담사"]],[["agent of atlas","에이전트 오브 아틀라스"]],[["defiant","저항"]],[["skrull","스크럴"]],[["shapeshift","변신"]],[["atlantis","아틀란티스"]],[["gift","선물"]],[["eternal","이터널"]],[["martial artist","무술가"]],[["sense","감각"]],[["attorney","변호사"]],[["midnight sun","미드나잇 선즈"]],[["dance","춤"]],[["maxim","좌우명"]]],be={};for(let[t,r=t]of Ot)for(let a of t)be[a]=r;var Ze={doctor_strange_invocation_deck:"doctor_strange",storm_weather_deck:"storm",iceman_frostbite:"iceman",hercules_labor_deck:"hercules",hercules_gift_deck:"hercules",daredevil_sense_deck:"daredevil"},pe=t=>/_leader$/.test(t||"")||t==="trickster_magic";var P=["aggression","justice","leadership","protection","pool"],E={aggression:"용맹",justice:"정의",leadership:"통솔",protection:"수호",pool:"'풀",basic:"기본",hero:"히어로"},he=[...P,"basic","hero"],Z={aggression:"#f65c65",justice:"#e8c44e",leadership:"#639ae8",protection:"#59bc95",pool:"#b07cf0",basic:"#9eafc8",hero:"#57b394"},N={hero:"히어로",ally:"동료",event:"이벤트",support:"지원",upgrade:"업그레이드",resource:"자원",player_side_scheme:"플레이어 부가 음모"},ye=["ally","event","support","upgrade","resource","player_side_scheme","hero"],$=[["physical","물리"],["energy","에너지"],["mental","정신"],["wild","만능"]],g=t=>t.nameKo||t.name,fe=t=>t.cost===-1?"X":t.cost==null?"—":t.cost,Y=t=>t&&t.requirements&&t.requirements[0]&&t.requirements[0].aspects||1,C=(t,r)=>!!r&&!!t.set&&t.set===r.set&&t.type!=="hero",j=(t,r)=>r&&r.name==="Adam Warlock"&&t.faction!=="hero"?1:t.limit||3;function z(t,r,a){if(t.type==="hero"||pe(t.set))return!1;if(C(t,r))return!0;if(t.faction==="hero")return!1;let n=t.faction;switch(r.name){case"Spider-Woman":if(n===a.secondAspect)return!0;break;case"Adam Warlock":if(P.includes(n))return!0;break;case"Gamora":if(t.type==="event"&&/attack|thwart/i.test(t.traits))return!0;break;case"Cyclops":if(t.type==="ally"&&/x-men/i.test(t.traits))return!0;break;case"Cable":if(t.type==="player_side_scheme")return!0;break;case"Maria Hill":if(t.type==="support"&&/S.H.I.E.L.D./i.test(t.traits))return!0;break;case"Wonder Man":if(t.type==="event"&&(t.resources.energy||0)>0)return!0;break}return n==="basic"||n===a.aspect}function tt(t){let r={};for(let a of t)a.type==="hero"&&(!r[a.set]||a.id<r[a.set].id)&&(r[a.set]=a);return t.filter(a=>a.type==="hero"&&r[a.set]===a).sort((a,n)=>+!!n.nameKo-+!!a.nameKo||g(a).localeCompare(g(n),"ko"))}var qe=(t,r)=>r?t.filter(a=>a.type==="hero"&&a.set===r.set&&a.id!==r.id).sort((a,n)=>a.id<n.id?-1:1):[],at=(t,r)=>r?t.filter(a=>Ze[a.set]===r.set):[];function ie(t){return t?t.image?t.image:"":""}var rt=t=>t.id.replace(/[a-z]$/,"b");function nt(t,r){let a=(r||"").toLowerCase().trim();if(!a||[t.name,t.nameKo,t.text,t.textKo,t.traits,t.traitsKo].join(" ").toLowerCase().includes(a))return!0;let s=be[a];if(!s)return!1;let c=[t.traits,t.traitsKo,t.textKo].join(" ").toLowerCase();return s.some(i=>c.includes(i))}var _e=t=>t.cost==null?900:t.cost===-1?800:t.cost;function et(t){let r=t.resources||{},a=$.findIndex(([s])=>r[s]>0);if(a<0)return null;let n=$.reduce((s,[c])=>s+(r[c]||0),0);return a*100+n}var st=[["name","이름"],["cost","비용"],["resource","자원"],["faction","성향"],["type","유형"]];function ot(t,r,a){let n=a==="desc"?-1:1,s=(c,i)=>g(c).localeCompare(g(i),"ko");return t.sort((c,i)=>{let l=0;if(r==="cost"){let m=_e(c),o=_e(i);if(m>=800||o>=800)return m===o?s(c,i):m-o;l=m-o}else if(r==="resource"){let m=et(c),o=et(i);if(m==null||o==null)return m===o?s(c,i):m==null?1:-1;l=m-o}else r==="faction"?l=he.indexOf(c.faction)-he.indexOf(i.faction):r==="type"&&(l=ye.indexOf(c.type)-ye.indexOf(i.type));return(l||s(c,i))*n})}var ke=40,_=50;function ve(t,r){let a=t.find(n=>n.id===r);return{version:1,name:`${g(a)}의 덱`,hero:r,aspect:"protection",secondAspect:"justice",counts:Object.fromEntries(t.filter(n=>C(n,a)).map(n=>[n.id,n.quantity]))}}var ge=(t,r)=>t.reduce((a,n)=>a+(n.permanent?0:r.counts[n.id]||0),0),Te=(t,r)=>t.filter(a=>r.counts[a.id]);function it(t,r,a){let n=[],s=ge(t,a);s<ke&&n.push(`덱에 ${ke-s}장을 더 추가하세요. (${ke}–${_}장)`),s>_&&n.push(`덱이 ${s-_}장 초과했습니다.`);let c={};for(let i of t){let l=a.counts[i.id]||0;l&&(c[i.name]=(c[i.name]||0)+l,z(i,r,a)||n.push(`${g(i)}: 선택한 히어로·성향에 맞지 않습니다.`))}for(let i of t.filter(l=>a.counts[l.id])){let l=j(i,r);c[i.name]>l&&!n.some(m=>m.startsWith(g(i)+": 수량"))&&n.push(`${g(i)}: 수량 제한 ${l}장을 초과했습니다.`)}if(t.some(i=>C(i,r)&&(a.counts[i.id]||0)!==i.quantity)&&n.push("히어로 전용 카드 구성을 확인하세요."),r.name==="Gamora"&&t.reduce((l,m)=>l+(m.faction!=="hero"&&m.faction!=="basic"&&m.faction!==a.aspect&&a.counts[m.id]||0),0)>6&&n.push("가모라의 다른 성향 이벤트는 최대 6장입니다."),r.name==="Spider-Woman"&&a.aspect===a.secondAspect&&n.push("스파이더우먼은 서로 다른 성향 2개를 선택해야 합니다."),r.name==="Adam Warlock"){let i=P.map(l=>t.reduce((m,o)=>m+(o.faction===l&&a.counts[o.id]||0),0)).filter(l=>l>0);(i.length>4||i.length===4&&new Set(i).size!==1)&&n.push("아담 워록은 성향 4개('풀 포함 5개 중)에서 같은 장수씩 넣어야 합니다.")}return n}function ct(t,r){if(!t||typeof t!="object")throw Error("덱 파일 형식이 올바르지 않습니다.");if(t.version!==1||typeof t.name!="string"||t.name.length>100||!r.some(n=>n.id===t.hero&&n.type==="hero")||!P.includes(t.aspect)||!t.counts||typeof t.counts!="object"||Array.isArray(t.counts))throw Error("지원하지 않는 덱 파일입니다.");let a={};for(let[n,s]of Object.entries(t.counts)){if(!r.some(c=>c.id===n&&c.type!=="hero")||!Number.isInteger(s)||s<0||s>99)throw Error("알 수 없는 카드 또는 잘못된 수량이 있습니다.");s&&(a[n]=s)}return{version:1,name:t.name,hero:t.hero,aspect:t.aspect,secondAspect:P.includes(t.secondAspect)?t.secondAspect:"justice",counts:a}}function lt(t,r,a){let n=Te(t,a);return`${a.name}
+히어로: ${g(r)}
+성향: ${E[a.aspect]}
+총 ${ge(t,a)}장 (영속 제외)
 
-`+n.map(s=>`${a.counts[s.id]}x ${p(s)} (${s.id})${s.permanent?" [영속]":""}`).join(`
-`)}function Qe(t,r,a){let n=URL.createObjectURL(new Blob([t],{type:a==="json"?"application/json;charset=utf-8":"text/plain;charset=utf-8"})),s=document.createElement("a");s.href=n,s.download=(r.replace(/[<>:"/\\|?*]/g,"_")||"deck")+"."+a,s.click(),setTimeout(()=>URL.revokeObjectURL(n),1e3)}var $e=/^[2-9A-HJ-NP-Z]{4}-[2-9A-HJ-NP-Z]{4}$/;function ee(t,r){return fetch(De,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:t,...r})}).catch(()=>{throw new Error("서버에 연결하지 못했습니다. 인터넷 연결을 확인하세요.")}).then(a=>{if(!a.ok)throw new Error(`서버 응답 오류 (${a.status})`);return a.json()}).then(a=>{if(!a||!a.ok)throw new Error(a&&a.error||"서버 오류");return a})}function G(){try{return JSON.parse(localStorage.getItem(le.myDecks)||"[]")}catch{return[]}}function Ze(t){try{localStorage.setItem(le.myDecks,JSON.stringify(t.slice(0,100)))}catch{}}function he(t){Ze([t,...G().filter(r=>r.code!==t.code)])}function ye(t){Ze(G().filter(r=>r.code!==t))}function et(t){let r=G().find(a=>a.code===t);return r?r.key:""}function fe(t){try{history.replaceState(null,"",t||location.pathname+location.search)}catch{}}function tt({heroes:t,hero:r,deck:a,setDeck:n,inDeck:s,onLoaded:m}){let[c,u]=w(null),[i,l]=w(""),[T,q]=w(!1),[I,h]=w(!1),[N,S]=w(G),[L,f]=w(""),M=!!(c&&c.key&&!c.readOnly),E=()=>({name:a.name,memo:a.memo||"",hero:a.hero,heroName:p(r),aspect:a.aspect,secondAspect:O(r)===2&&a.secondAspect||"",counts:a.counts,isPublic:a.isPublic!==!1,copiedFrom:c&&c.readOnly?c.code:c&&c.copiedFrom||"",summary:s.map(y=>a.counts[y.id]+"x "+p(y)).join(`
-`)});function R(){if(T)return;let y=M,b=E();if(!String(a.name||"").trim()){l("덱 이름을 입력하세요.");return}q(!0),l(y?"수정 저장 중…":"저장 중…"),(y?ee("update",{code:c.code,editKey:c.key,deck:b}):ee("create",{deck:b})).then(H=>{let D=y?c.code:H.code,v=y?c.key:H.editKey;he({code:D,key:v,name:a.name,heroName:p(r),at:Date.now()}),S(G()),u({code:D,key:v,readOnly:!1,copiedFrom:b.copiedFrom}),fe("#deck="+D),l(y?"수정 내용을 저장했습니다.":"저장했습니다. 덱 코드는 "+D+" 입니다.")}).catch(H=>l(H.message)).finally(()=>q(!1))}function B(y,b){let H=String(y||"").trim().toUpperCase();if(!$e.test(H)){l("덱 코드 형식이 올바르지 않습니다. 예: XDGD-QW4F");return}T||(q(!0),l("불러오는 중…"),ee("get",{code:H}).then(D=>{let v=D.deck;if(!t.some(ie=>ie.id===v.hero))throw new Error("이 덱의 히어로를 찾을 수 없습니다.");let z=b||et(H);n({version:1,name:v.name,memo:v.memo||"",isPublic:v.isPublic,hero:v.hero,aspect:v.aspect,secondAspect:v.secondAspect||"justice",counts:v.counts||{}}),b&&(he({code:H,key:b,name:v.name,heroName:v.heroName,at:Date.now()}),S(G())),u({code:H,key:z,readOnly:!z,copiedFrom:v.copiedFrom||""}),f(""),m(),fe("#deck="+H),l(z?"내 덱을 불러왔습니다. 고친 뒤 저장하면 이 코드에 덮어씁니다.":"다른 사람의 덱이라 읽기 전용입니다. 저장하면 새 코드의 복사본이 만들어집니다.")}).catch(D=>l(D.message)).finally(()=>q(!1)))}function F(){if(!M||T)return;if(!I){h(!0),setTimeout(()=>h(!1),3e3);return}h(!1),q(!0),l("삭제 중…");let y=c.code;ee("delete",{code:y,editKey:c.key}).then(()=>{ye(y),S(G()),u(null),fe(""),l("온라인 덱을 삭제했습니다. 화면의 카드 구성은 그대로 남아 있습니다.")}).catch(b=>l(b.message)).finally(()=>q(!1))}function o(){u(null),l("연결을 끊었습니다. 저장하면 지금 구성으로 새 코드를 받습니다.")}function K(y){ye(y),S(G())}return{link:c,isOwner:M,status:i,setStatus:l,busy:T,deleteArmed:I,mine:N,codeInput:L,setCodeInput:f,save:R,load:B,remove:F,unlink:o,forget:K}}var kt={physical:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 10.1V7.6a1.5 1.5 0 0 1 3 0v2.3h.6V6.2a1.5 1.5 0 0 1 3 0v3.7h.6V7.8a1.5 1.5 0 0 1 3 0v5.4c0 3-2.3 5.3-5.2 5.3h-1.3c-1.3 0-2.5-.5-3.4-1.4l-2.8-2.8a1.45 1.45 0 0 1 2-2.1l1 1z"/></svg>',energy:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.6 2 5.8 13.2h4.9L9.9 22l8.3-11.6h-5.2z"/></svg>',mental:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11.2 3.2c-1.5 0-2.7 1-3 2.4-1.5.2-2.6 1.4-2.6 3 0 .7.2 1.3.6 1.8-.5.5-.8 1.2-.8 2 0 1.5 1.1 2.7 2.6 2.9.4 1.3 1.6 2.2 3 2.2h.2V3.2zm1.6 0v14.3h.2c1.4 0 2.6-.9 3-2.2 1.5-.2 2.6-1.4 2.6-2.9 0-.8-.3-1.5-.8-2 .4-.5.6-1.1.6-1.8 0-1.6-1.1-2.8-2.6-3-.3-1.4-1.5-2.4-3-2.4z"/><path d="M11.2 18.4h1.6V21h-1.6z"/></svg>',wild:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.6 14.1 9 21.5 11 14.1 13 12 20.4 9.9 13 2.5 11 9.9 9z"/></svg>'};function ge({type:t,title:r}){return e("span",{className:"res res-"+t,title:r,dangerouslySetInnerHTML:{__html:kt[t]}})}function P(t){let r=t&&t.resources;if(!r)return null;let a=[];for(let[n,s]of j)for(let m=0;m<(r[n]||0);m++)a.push(e(ge,{key:n+m,type:n,title:s}));return a.length?e("span",{className:"reslist"},a):null}function Y({value:t,onChange:r,options:a,label:n}){return e(be,{value:t,onValueChange:s=>s!==null&&r(s)},e(qe,{"aria-label":n,className:"picker"},e(ke,null,a.find(s=>s[0]===t)?.[1]||t)),e(ve,null,a.map(([s,m])=>e(Te,{key:s,value:s},m))))}function oe({title:t,items:r}){let a=Math.max(1,...r.map(n=>n.v));return e("div",{className:"chart"},e("div",{className:"charttitle"},t),e("div",{className:"bars"},r.map(n=>e("div",{key:n.l,className:"bar",title:n.t||n.l},e("b",null,n.v),e("span",{className:"barfill",style:{height:(n.v?Math.max(3,n.v/a*100):0)+"%",background:n.c||"#6fa8e0"}}),e("small",null,n.l)))))}function at({card:t,hero:r,deck:a,onSet:n}){if(A(t,r))return e("span",{className:"qtyfixed"},a.counts[t.id]||t.quantity||0,"장");let s=J(t,r),m=a.counts[t.id]||0,c=V(t,r,a),u=[];for(let i=0;i<=s;i++)u.push(e("button",{key:i,type:"button","aria-label":p(t)+" "+i+"장",className:m===i?"on":"",disabled:!c&&i>0,onClick:()=>n(t.id,i)},i));return e("span",{className:"qtybtns"},u)}var rt=340,vt=320;function nt(){let[t,r]=w(null);return{state:t,bind:n=>({onMouseEnter:s=>{let m=Math.min(vt,window.innerHeight-16),c=s.clientX+16,u=s.clientY+14;c+rt>window.innerWidth-8&&(c=Math.max(8,s.clientX-rt-16)),u+m>window.innerHeight-8&&(u=Math.max(8,window.innerHeight-m-8)),r({card:n,left:c,top:u})},onMouseLeave:()=>r(null)}),hide:()=>r(null)}}function st({state:t}){if(!t)return null;let r=t.card;return e("div",{className:"cardpop",style:{top:t.top+"px",left:t.left+"px"}},e("div",{className:"cphead"},e("b",null,r.unique?"◆ ":"",p(r)),e("span",null,r.name)),e("div",{className:"cpmeta"},e("span",{className:"ctfac f-"+r.faction},W[r.faction]),e("span",null,X[r.type]),e("span",null,"비용 ",ne(r)),P(r)),e("div",{className:"cptraits"},r.traitsKo||r.traits||"특성 없음"),e("p",null,r.textKo||r.text||"효과 텍스트 없음"),r.textKo&&r.text?e("p",{className:"cpen"},r.text):null)}function ot({heroes:t,currentId:r,onPick:a,onClose:n}){let[s,m]=w(""),c=s.toLowerCase(),u=t.filter(i=>{let l=[p(i),i.name,i.subKo||"",i.subname||"",i.traitsKo||""].join(" ").toLowerCase();return!c||l.includes(c)});return e("div",{className:"heromodal",onClick:i=>{i.target===i.currentTarget&&n()}},e("div",{className:"hmbox"},e("div",{className:"hmhead"},e("h2",null,"히어로 선택"),e("input",{className:"hmsearch",autoFocus:!0,placeholder:"히어로 이름 검색",value:s,onChange:i=>m(i.target.value)}),e("button",{type:"button",className:"hmclose","aria-label":"닫기",onClick:n},"×")),e("div",{className:"hmgrid"},u.map(i=>{let l=O(i);return e("button",{key:i.id,type:"button",className:"hmcard"+(i.id===r?" on":""),onClick:()=>a(i.id)},e("b",null,p(i)),e("span",{className:"hmsub"},i.subKo||i.subname||i.name),e("span",{className:"hmtr"},i.traitsKo||i.traits||""),e("span",{className:"hmpack"},i.pack,l>1?e("em",null,"성향 ",l):null))})),e("p",{className:"hmfoot"},"히어로 ",t.length,"명 · 고르면 전용 카드가 덱에 자동으로 들어갑니다.")))}var Tt=[["all","모든 비용"],...Array.from({length:9},(t,r)=>[String(r),`비용 ${r}`]),["-1","비용 X"],["null","비용 없음"]],At=[["ally","동료"],["event","이벤트"],["upgrade","업그레이드"],["support","지원"],["resource","자원"],["player_side_scheme","부가 음모"]];function it({cards:t,packs:r,shown:a,filters:n,setFilter:s,resetFilters:m,visible:c,showMore:u,hero:i,deck:l,onSetCount:T,onOpenCard:q,popup:I}){let{query:h,cost:N,pack:S,types:L,aspects:f,sortKey:M,sortDir:E,view:R,fitsDeck:B}=n,F=o=>e(at,{card:o,hero:i,deck:l,onSet:T});return e("section",{className:"library"},e("div",{className:"libraryhead"},e("div",{className:"eyebrow"},"CARD LIBRARY"),e("span",{className:"catalog-count"},"한글 ",t.filter(o=>o.nameKo).length.toLocaleString(),"종")),e("div",{className:"searchbox"},e(C.Search,{size:20}),e("input",{"aria-label":"카드 이름·효과 검색",placeholder:"카드 이름, 효과, 특성 검색",value:h,onChange:o=>s("query",o.target.value)})),e("div",{className:"filters"},e(Y,{label:"카드 비용",value:N,onChange:o=>s("cost",o),options:Tt}),e(Y,{label:"확장팩",value:S,onChange:o=>s("pack",o),options:[["all","모든 확장팩"],...r.map(o=>[o,o])]})),e("div",{className:"togglebar"},e("div",{className:"tgroup"},e("span",{className:"tglabel"},"유형"),e("button",{type:"button",className:"tg"+(L.length?"":" on"),"aria-pressed":!L.length,onClick:()=>s("types",[])},"전부"),At.map(([o,K])=>{let y=L.includes(o);return e("button",{key:o,type:"button",className:"tg"+(y?" on":""),"aria-pressed":y,onClick:()=>s("types",y?[]:[o])},K)})),e("div",{className:"tgroup"},e("span",{className:"tglabel"},"성향"),Object.entries(W).filter(([o])=>o!=="hero").map(([o,K])=>{let y=f.includes(o);return e("button",{key:o,type:"button",className:"tg asp-"+o+(y?" on":""),"aria-pressed":y,onClick:()=>s("aspects",y?f.filter(b=>b!==o):[...f,o])},K)}))),e("div",{className:"filtermeta"},e("div",{className:"sortbar"},e("span",null,"정렬"),e("select",{className:"sortsel","aria-label":"정렬 기준",value:M,onChange:o=>s("sortKey",o.target.value)},Oe.filter(([o])=>o!=="resource").map(([o,K])=>e("option",{key:o,value:o},K))),e("button",{type:"button",className:"sortdir","aria-label":"오름차순 내림차순 전환",onClick:()=>s("sortDir",E==="asc"?"desc":"asc")},E==="asc"?"↑ 오름":"↓ 내림")),e("div",{className:"viewtoggle"},e("button",{type:"button",className:R==="grid"?"on":"","aria-pressed":R==="grid",onClick:()=>s("view","grid",!0)},"카드"),e("button",{type:"button",className:R==="list"?"on":"","aria-pressed":R==="list",onClick:()=>s("view","list",!0)},"목록")),e("label",null,e(Ae,{checked:B,onCheckedChange:o=>s("fitsDeck",!!o,!0)})," 현재 덱에 맞는 카드"),e("span",null,a.length.toLocaleString(),"종"),e("button",{"aria-label":"검색 필터 초기화",onClick:m},e(C.RotateCcw,{size:15}))),R==="list"?e("div",{className:"cardtable"},e("div",{className:"ctrow cthead"},e("span",null,"수량"),e("span",null,"이름"),e("span",null,"자원"),e("span",null,"비용"),e("span",null,"유형"),e("span",null,"성향")),a.slice(0,c).map(o=>e("div",{key:o.id,className:"ctrow"+(l.counts[o.id]?" in":"")},F(o),e("button",{className:"ctname",...I.bind(o),onClick:()=>q(o)},o.unique?"● ":"",p(o)),e("span",{className:"ctres"},P(o)),e("span",{className:"ctcost"},ne(o)),e("span",{className:"cttype"},X[o.type]),e("span",{className:"ctfac f-"+o.faction},W[o.faction])))):e("div",{className:"cardgrid"},a.slice(0,c).map(o=>e("article",{key:o.id,className:"gamecard "+o.faction},e("div",null,e("span",{className:"cost",title:"카드 비용"},o.cost===-1?"X":o.cost??"—"),e("small",null,W[o.faction]," · ",X[o.type]),P(o),e("button",{className:"cardtitle",onClick:()=>q(o)},e("h2",null,o.unique?"◆ ":"",p(o))),e("div",{className:"english"},o.nameKo?o.name:"영문 카드 · 시트 번역 미연결"),e("div",{className:"traits"},o.traitsKo||o.traits||"특성 없음"),e("p",{className:"effect"},o.textKo||o.text||"효과 텍스트 없음")),e("div",{className:"cardbottom"},e("button",{className:"detailbutton",onClick:()=>q(o)},"상세 보기"),e("div",{className:"counter"},F(o)))))),a.length===0&&e("div",{className:"empty"},e(C.Search,{size:28}),e("h2",null,"검색 결과가 없습니다."),e("p",null,"다른 검색어를 입력하거나 필터를 초기화해 보세요."),e("button",{className:"secondary",onClick:m},"필터 초기화")),a.length>c&&e("button",{className:"loadmore secondary",onClick:u},"카드 더 보기 · ",Math.min(c,a.length)," / ",a.length),e("footer",null,e("p",null,Ce," 시트 사본 기준 · 실시간 동기화 아님"),e("p",null,"번역: ",e("span",null,"사용자 제공 시트")," · 카드 수치:"," ",e("a",{href:"https://marvelcdb.com",target:"_blank",rel:"noreferrer"},"MarvelCDB"),e("br",null),"전체 시트 중 카드 정보와 연결된 플레이어 카드만 수록했습니다. 비공식 팬 도구입니다.")))}function ct({deck:t,setDeck:r,online:a}){let{link:n,isOwner:s,status:m,setStatus:c,busy:u,deleteArmed:i,mine:l,codeInput:T,setCodeInput:q}=a,I=(h,N)=>{try{navigator.clipboard.writeText(h)}catch{}c(N)};return e("details",{className:"online"},e("summary",null,"온라인 저장 · 공유"),e("textarea",{className:"memo",rows:3,maxLength:5e3,placeholder:"덱 메모 (선택)",value:t.memo||"",onChange:h=>r({...t,memo:h.target.value})}),e("label",{className:"pubchk"},e("input",{type:"checkbox",checked:t.isPublic!==!1,onChange:h=>r({...t,isPublic:h.target.checked})})," 공개 목록에 올리기"),e("div",{className:"onrow"},e("button",{type:"button",className:"primary",disabled:u,onClick:a.save},s?"수정 저장":n&&n.readOnly?"복사해서 새로 저장":"온라인 저장"),s?e("button",{type:"button",className:"secondary",disabled:u,onClick:a.unlink},"새 코드로"):null),n?e("div",{className:"oncode"},e("span",null,"덱 코드"),e("b",null,n.code),n.readOnly?e("small",null,"읽기 전용"):null,e("button",{type:"button",onClick:()=>I(n.code,"덱 코드를 복사했습니다. 남에게 공유할 때 쓰세요.")},"코드 복사"),s?e("button",{type:"button",onClick:()=>I(location.href.split("#")[0]+"#deck="+n.code+"&key="+n.key,"편집 링크를 복사했습니다. 다른 기기에서 고칠 때 쓰시고, 남에게는 주지 마세요.")},"편집 링크"):null,s?e("button",{type:"button",className:"ondel"+(i?" arm":""),disabled:u,onClick:a.remove},i?"한 번 더 누르면 삭제":"삭제"):null):null,e("div",{className:"onload"},e("input",{value:T,placeholder:"덱 코드로 불러오기  예: XDGD-QW4F",maxLength:9,onChange:h=>q(h.target.value),onKeyDown:h=>h.key==="Enter"&&a.load(T)}),e("button",{type:"button",className:"secondary",disabled:u,onClick:()=>a.load(T)},"불러오기")),m?e("p",{className:"onstatus"+(u?" busy":"")},m):null,l.length?e("details",{className:"mydecks"},e("summary",null,"이 브라우저의 내 덱 "+l.length+"개"),l.map(h=>e("div",{key:h.code,className:"myrow"},e("button",{type:"button",className:"mypick",disabled:u,onClick:()=>a.load(h.code,h.key)},e("em",null,h.code),e("span",null,h.name),e("small",null,h.heroName||"")),e("button",{type:"button",className:"forget","aria-label":h.name+" 목록에서 빼기",onClick:()=>a.forget(h.code)},"×")))):null)}var lt=_.map(t=>[t,W[t]]),St=["hero","ally","event","support","upgrade","resource","player_side_scheme"];function Ht({hero:t,faces:r}){return e("details",{className:"heroinfo"},e("summary",null,"일상 / 히어로"),e("div",{className:"hiname"},t.unique?"◆ ":"",p(t),t.subname?e("small",null," · ",t.subKo||t.subname):null),e("div",{className:"hitraits"},t.traitsKo||t.traits||""),t.alterTextKo||t.alterText?e(x,null,e("div",{className:"hiside"},"일상"),e("p",null,t.alterTextKo||t.alterText)):null,e("div",{className:"hiside"},"히어로"),e("p",null,t.textKo||t.text||"-"),r.map((a,n)=>e("div",{key:a.id,className:"hiextra"},e("div",{className:"hiside"},p(a)!==p(t)?p(a):"히어로 면 "+(n+2)),e("div",{className:"hitraits"},a.traitsKo||a.traits||""),e("p",null,a.textKo||a.text||"-"),a.alterTextKo||a.alterText?e("p",null,a.alterTextKo||a.alterText):null)))}function Wt({hero:t,deck:r,inDeck:a,subdeck:n,onOpenCard:s,onAdjust:m}){let c=u=>u.reduce((i,l)=>i+r.counts[l.id],0);return e(x,null,e("div",{className:"decklist"},St.map(u=>{let i=a.filter(l=>u==="hero"?A(l,t):!A(l,t)&&l.type===u);return i.length?e("div",{key:u,className:"deckgroup"},e("h3",null,u==="hero"?"히어로 전용":X[u]," ",e("span",null,c(i),"장")),i.map(l=>e("div",{key:l.id,className:"deckrow"},e("button",{className:"deckcard",onClick:()=>s(l)},e("em",null,r.counts[l.id],"x"),l.unique?"● ":"",p(l),l.permanent&&e("small",null," 영속")),P(l),A(l,t)?null:e("div",{className:"counter"},e("button",{"aria-label":`${p(l)} 덱에서 제거`,onClick:()=>m(l.id,-1)},e(C.Minus,{size:13})),e("b",null,r.counts[l.id]),e("button",{"aria-label":`${p(l)} 덱에 추가`,disabled:c(a.filter(T=>T.name===l.name))>=J(l,t)||!V(l,t,r),onClick:()=>m(l.id,1)},e(C.Plus,{size:13})))))):null})),n.length?e("div",{className:"deckgroup subdeck"},e("h3",null,"히어로 부속 덱 ",e("span",null,n.reduce((u,i)=>u+(i.quantity||1),0),"장")),n.map(u=>e("div",{key:u.id,className:"deckrow"},e("button",{className:"deckcard",onClick:()=>s(u)},e("em",null,u.quantity||1,"x"),p(u)),P(u)))):null)}function Mt({deck:t,inDeck:r}){let a=n=>r.reduce((s,m)=>s+(n(m)&&t.counts[m.id]||0),0);return e("details",{className:"charts"},e("summary",null,"덱 분석"),e(oe,{title:"비용",items:[0,1,2,3,4,5].map(n=>({l:n===5?"5+":String(n),v:a(s=>n===5?(s.cost||0)>=5:s.cost===n),c:"#6fa8e0"}))}),e(oe,{title:"성향",items:re.map(n=>({l:W[n],v:a(s=>s.faction===n),c:Ge[n]})).filter(n=>n.v>0)}),e(oe,{title:"유형",items:["ally","event","support","upgrade","resource","player_side_scheme"].map(n=>({l:X[n],v:a(s=>s.type===n),c:"#8fa3bf"})).filter(n=>n.v>0)}))}function ut({cards:t,hero:r,deck:a,setDeck:n,faces:s,subdeck:m,size:c,issues:u,inDeck:i,notice:l,online:T,onOpenHeroPicker:q,onOpenCard:I,onAdjust:h,onClearAdded:N,onImportFile:S,onNotice:L}){let[f,M]=w(!1),E=Ke(null),R=O(r),B=i.reduce((o,K)=>o+(A(K,r)?0:a.counts[K.id]||0),0),F=(o,K)=>{Qe(o,a.name,K),L("덱 파일을 다운로드했습니다. 불러오기는 JSON 파일을 사용하세요.")};return e("aside",{className:"deckpanel"},e("div",{className:"deckhead"},e("div",{className:"eyebrow"},"YOUR DECK"),e(C.Shield,{size:20})),e("label",{className:"sr-only",htmlFor:"deck-name"},"덱 이름"),e("input",{id:"deck-name",className:"deckname",maxLength:100,value:a.name,onChange:o=>n({...a,name:o.target.value})}),e("label",{className:"fieldlabel"},"히어로"),e("button",{type:"button",className:"heropick",onClick:q},e("b",null,r?p(r):"히어로 선택"),e("span",null,r&&r.subname?r.subKo||r.subname:""),e("em",null,"변경")),r&&e(Ht,{hero:r,faces:s}),e("label",{className:"fieldlabel"},"성향"),R>=4?e("div",{className:"aspectfixed"},"성향 4개를 같은 장수로 ('풀 포함 5개 중 4개)"):e(Y,{label:"성향 선택",value:a.aspect,onChange:o=>n({...a,aspect:o}),options:lt}),R===2&&e(x,null,e("label",{className:"fieldlabel"},"두 번째 성향"),e(Y,{label:"두 번째 성향",value:a.secondAspect,onChange:o=>n({...a,secondAspect:o}),options:lt})),e("div",{className:"decktotal"},e("strong",null,c,e("small",null," / 40–50")),e("span",null,"장")),e(Se,{"aria-label":"덱 장수",value:Math.min(c,U),max:U}),e("div",{className:"ressum"},j.map(([o,K])=>e("span",{key:o},e(ge,{type:o,title:K}),e("b",null,i.reduce((y,b)=>y+(b.resources&&b.resources[o]||0)*(a.counts[b.id]||0),0))))),e("button",{className:"clearbtn"+(f?" arm":""),type:"button",onClick:()=>{f?(N(),M(!1)):(M(!0),setTimeout(()=>M(!1),3e3))},disabled:!i.some(o=>!A(o,r)&&a.counts[o.id])},f?"한 번 더 누르면 비웁니다":e(x,null,"추가한 카드 비우기 ",e("b",null,B),"장")),e("div",{className:"validation","aria-live":"polite"},e("b",null,u.length?"덱을 확인하세요":"기본 구성 조건 충족"),u.slice(0,4).map((o,K)=>e("p",{key:K},o)),u.length>4&&e("p",null,"추가 확인 항목 ",u.length-4,"개")),e("details",{className:"rulesnote"},e("summary",null,"규칙 검사 범위"),e("p",null,"레거시 카드 풀의 장수·성향·동명 카드 제한을 검사합니다. 영속 카드는 덱 장수에서 제외합니다."),e("p",null,"히어로별 추가 조건, 카드별 덱 편입 조건, 멀티플레이 팀업 교체와 최신 제한 환경은 직접 확인하세요. 이 결과는 전체 적법성 판정이 아닙니다."),e("a",{href:Pe,target:"_blank",rel:"noreferrer"},"공식 규칙 1.8 안내 ↗")),e(Wt,{hero:r,deck:a,inDeck:i,subdeck:m,onOpenCard:I,onAdjust:h}),e(Mt,{deck:a,inDeck:i}),e(ct,{deck:a,setDeck:n,online:T}),e("div",{className:"saveactions"},e("button",{className:"primary",onClick:()=>F(JSON.stringify(a,null,2),"json")},e(C.Download,{size:16})," 파일로 저장"),e("button",{className:"secondary",onClick:()=>E.current?.click()},e(C.Upload,{size:16})," 파일 불러오기"),e("button",{className:"text-export",onClick:()=>F(ze(t,r,a),"txt")},e(C.FileText,{size:15})," 텍스트 목록 내보내기")),e("input",{ref:E,className:"sr-only",type:"file",accept:".json,application/json","aria-label":"덱 파일 불러오기",onChange:async o=>{await S(o.target.files?.[0]),E.current&&(E.current.value="")}}),e("p",{className:"savehint"},"덱 저장은 파일로 다운로드됩니다.",e("br",null),"창을 닫기 전에 저장해 주세요."),e("div",{role:"status",className:"notice"},l))}function mt({card:t,onClose:r}){return e(He,{open:!!t,onOpenChange:a=>a||r()},e(We,{className:"carddetail"},t&&e(x,null,e(Me,null,e(Re,{className:"detailtitle"},p(t)),e(Ie,null,t.name," · ",t.subname)),e("div",{className:"detailbody"},e("div",{className:"badges"},e("span",null,W[t.faction]),e("span",null,X[t.type]),e("span",null,"비용 ",t.cost===-1?"X":t.cost??"—"),P(t)&&e("span",{className:"resbadge"},P(t))),e("b",null,t.traitsKo||t.traits),e("p",null,t.textKo||t.text),e("h3",null,"영문 원문"),e("p",null,t.text),t.type==="hero"&&e("p",null,t.alterText),e("hr",null),e("p",{className:"metadata"},t.pack," · ",t.id,e("br",null),"동명 제한 ",t.limit||3,"장",t.permanent?" · 영속":"",e("br",null),t.sheet?`번역: ${t.sheet} / ${t.row}행`:"한글 번역 미연결"),e("a",{href:t.url,target:"_blank",rel:"noreferrer"},"원본 카드 보기 ↗")))))}var te=24,dt={query:"",cost:"all",pack:"all",types:[],aspects:[],fitsDeck:!0,sortKey:"name",sortDir:"asc",view:"list"};function pt({cards:t}){let r=Z(()=>Be(t),[t]),a=Z(()=>new Set(r.map(d=>d.set)),[r]),n=Z(()=>Array.from(new Set(t.map(d=>d.pack))).sort(),[t]),[s,m]=w(()=>de(t,t.find(d=>d.type==="hero"&&d.name==="Groot").id)),[c,u]=w(dt),[i,l]=w(te),[T,q]=w(null),[I,h]=w(""),[N,S]=w(!0),L=nt(),f=r.find(d=>d.id===s.hero),M=pe(t,s),E=se(t,s),R=Ue(t,f,s),B=tt({heroes:r,hero:f,deck:s,setDeck:m,inDeck:M,onLoaded:()=>S(!1)});xe(()=>{let d=location.hash||"",k=/deck=([A-Za-z0-9-]{9})/.exec(d),g=/key=([a-f0-9]{40})/.exec(d);k&&(S(!1),B.load(k[1],g?g[1]:""))},[]);let{query:F,cost:o,pack:K,types:y,aspects:b,fitsDeck:H,sortKey:D,sortDir:v}=c,z=Z(()=>Je(t.filter(d=>d.type!=="hero"&&d.faction!=="hero"&&!ae(d.set)&&!(d.set&&a.has(d.set))&&(!H||V(d,f,s))&&(!y.length||y.includes(d.type))&&(!b.length||b.includes(d.faction))&&(K==="all"||d.pack===K)&&(o==="all"||String(d.cost)===o)&&je(d,F)),D,v),[t,a,f,s,F,o,K,y,b,H,D,v]),ie=(d,k,g)=>{u(Q=>({...Q,[d]:k})),g||l(te)},ht=()=>{u(d=>({...dt,sortKey:d.sortKey,sortDir:d.sortDir,view:d.view})),l(te)},yt=(d,k)=>{A(t.find(g=>g.id===d),f)||m(g=>({...g,counts:{...g.counts,[d]:k}}))},ft=(d,k)=>{A(t.find(g=>g.id===d),f)||m(g=>({...g,counts:{...g.counts,[d]:Math.max(0,(g.counts[d]||0)+k)}}))},gt=()=>{m(d=>({...d,counts:Object.fromEntries(Object.entries(d.counts).filter(([k])=>{let g=t.find(Q=>Q.id===k);return g&&A(g,f)}))}))},xt=d=>{m(k=>{let g=de(t,d);return{...g,memo:k.memo,isPublic:k.isPublic,aspect:k.aspect,counts:{...Object.fromEntries(Object.entries(k.counts).filter(([Q])=>t.find(wt=>wt.id===Q)?.faction!=="hero")),...g.counts}}}),h("히어로 전용 카드를 교체했습니다. 나머지 카드는 유지됩니다."),l(te)};async function Kt(d){if(d)try{if(d.size>1e6)throw Error("덱 파일은 1MB 이하여야 합니다.");m(Ye(JSON.parse(await d.text()),t)),h("덱을 불러왔습니다.")}catch(k){h(k instanceof Error?k.message:"파일을 읽지 못했습니다.")}}return e("main",null,e("header",{className:"topbar"},e("span",{className:"apptitle"},"마블 챔피언스",e("br",{className:"mobilebreak"})," 한글 덱 빌더")),e("div",{className:"workspace"},e(it,{cards:t,packs:n,shown:z,filters:c,setFilter:ie,resetFilters:ht,visible:i,showMore:()=>l(d=>d+te),hero:f,deck:s,onSetCount:yt,onOpenCard:q,popup:L}),e(st,{state:L.state}),N?e(ot,{heroes:r,currentId:s.hero,onPick:d=>{d!==s.hero&&xt(d),S(!1)},onClose:()=>S(!1)}):null,e(ut,{cards:t,hero:f,deck:s,setDeck:m,faces:_e(t,f),subdeck:Ve(t,f),size:E,issues:R,inDeck:M,notice:I,online:B,onOpenHeroPicker:()=>S(!0),onOpenCard:q,onAdjust:ft,onClearAdded:gt,onImportFile:Kt,onNotice:h})),e(mt,{card:T,onClose:()=>q(null)}))}we(document.getElementById("root")).render(e(pt,{cards:Ee}));})();
+`+n.map(s=>`${a.counts[s.id]}x ${g(s)} (${s.id})${s.permanent?" [영속]":""}`).join(`
+`)}function ut(t,r,a){let n=URL.createObjectURL(new Blob([t],{type:a==="json"?"application/json;charset=utf-8":"text/plain;charset=utf-8"})),s=document.createElement("a");s.href=n,s.download=(r.replace(/[<>:"/\\|?*]/g,"_")||"deck")+"."+a,s.click(),setTimeout(()=>URL.revokeObjectURL(n),1e3)}var mt=/^[2-9A-HJ-NP-Z]{4}-[2-9A-HJ-NP-Z]{4}$/;function V(t,r){return fetch(ze,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:t,...r})}).catch(()=>{throw new Error("서버에 연결하지 못했습니다. 인터넷 연결을 확인하세요.")}).then(a=>{if(!a.ok)throw new Error(`서버 응답 오류 (${a.status})`);return a.json()}).then(a=>{if(!a||!a.ok)throw new Error(a&&a.error||"서버 오류");return a})}function J(){try{return JSON.parse(localStorage.getItem(oe.myDecks)||"[]")}catch{return[]}}function dt(t){try{localStorage.setItem(oe.myDecks,JSON.stringify(t.slice(0,100)))}catch{}}function Ae(t){dt([t,...J().filter(r=>r.code!==t.code)])}function Se(t){dt(J().filter(r=>r.code!==t))}function pt(t){let r=J().find(a=>a.code===t);return r?r.key:""}function ht(){try{return JSON.parse(localStorage.getItem(oe.prefs)||"{}")||{}}catch{return{}}}function yt(t){try{localStorage.setItem(oe.prefs,JSON.stringify(t))}catch{}}function He(t){try{history.replaceState(null,"",t||location.pathname+location.search)}catch{}}function ft({heroes:t,hero:r,deck:a,setDeck:n,inDeck:s,onLoaded:c}){let[i,l]=b(null),[m,o]=b(""),[h,x]=b(!1),[d,p]=b(!1),[q,S]=b(J),[I,M]=b(""),k=!!(i&&i.key&&!i.readOnly),v=()=>({name:a.name,memo:a.memo||"",hero:a.hero,heroName:g(r),aspect:a.aspect,secondAspect:Y(r)===2&&a.secondAspect||"",counts:a.counts,isPublic:a.isPublic!==!1,copiedFrom:i&&i.readOnly?i.code:i&&i.copiedFrom||"",summary:s.map(w=>a.counts[w.id]+"x "+g(w)).join(`
+`)});function D(){if(h)return;let w=k,K=v();if(!String(a.name||"").trim()){o("덱 이름을 입력하세요.");return}x(!0),o(w?"수정 저장 중…":"저장 중…"),(w?V("update",{code:i.code,editKey:i.key,deck:K}):V("create",{deck:K})).then(H=>{let L=w?i.code:H.code,R=w?i.key:H.editKey;Ae({code:L,key:R,name:a.name,heroName:g(r),at:Date.now()}),S(J()),l({code:L,key:R,readOnly:!1,copiedFrom:K.copiedFrom}),He("#deck="+L),o(w?"수정 내용을 저장했습니다.":"저장했습니다. 덱 코드는 "+L+" 입니다.")}).catch(H=>o(H.message)).finally(()=>x(!1))}function X(w,K){let H=String(w||"").trim().toUpperCase();return mt.test(H)?h?Promise.resolve(!1):(x(!0),o("불러오는 중…"),V("get",{code:H}).then(L=>{let R=L.deck;if(!t.some(ue=>ue.id===R.hero))throw new Error("이 덱의 히어로를 찾을 수 없습니다.");let Q=K||pt(H);n({version:1,name:R.name,memo:R.memo||"",isPublic:R.isPublic,hero:R.hero,aspect:R.aspect,secondAspect:R.secondAspect||"justice",counts:R.counts||{}}),K&&(Ae({code:H,key:K,name:R.name,heroName:R.heroName,at:Date.now()}),S(J())),l({code:H,key:Q,readOnly:!Q,copiedFrom:R.copiedFrom||""}),M(""),He("#deck="+H);let ae=Q?"내 덱을 불러왔습니다. 고친 뒤 저장하면 이 코드에 덮어씁니다.":"다른 사람의 덱이라 읽기 전용입니다. 저장하면 새 코드의 복사본이 만들어집니다.";return o(ae),c({code:H,name:R.name,readOnly:!Q,message:ae}),!0}).catch(L=>(o(L.message),!1)).finally(()=>x(!1))):(o("덱 코드 형식이 올바르지 않습니다. 예: XDGD-QW4F"),Promise.resolve(!1))}function F(){if(!k||h)return;if(!d){p(!0),setTimeout(()=>p(!1),3e3);return}p(!1),x(!0),o("삭제 중…");let w=i.code;V("delete",{code:w,editKey:i.key}).then(()=>{Se(w),S(J()),l(null),He(""),o("온라인 덱을 삭제했습니다. 화면의 카드 구성은 그대로 남아 있습니다.")}).catch(K=>o(K.message)).finally(()=>x(!1))}function u(){l(null),o("연결을 끊었습니다. 저장하면 지금 구성으로 새 코드를 받습니다.")}function f(w){Se(w),S(J())}return{link:i,isOwner:k,status:m,setStatus:o,busy:h,deleteArmed:d,mine:q,codeInput:I,setCodeInput:M,save:D,load:X,remove:F,unlink:u,forget:f}}var Jt={physical:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 10.1V7.6a1.5 1.5 0 0 1 3 0v2.3h.6V6.2a1.5 1.5 0 0 1 3 0v3.7h.6V7.8a1.5 1.5 0 0 1 3 0v5.4c0 3-2.3 5.3-5.2 5.3h-1.3c-1.3 0-2.5-.5-3.4-1.4l-2.8-2.8a1.45 1.45 0 0 1 2-2.1l1 1z"/></svg>',energy:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.6 2 5.8 13.2h4.9L9.9 22l8.3-11.6h-5.2z"/></svg>',mental:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11.2 3.2c-1.5 0-2.7 1-3 2.4-1.5.2-2.6 1.4-2.6 3 0 .7.2 1.3.6 1.8-.5.5-.8 1.2-.8 2 0 1.5 1.1 2.7 2.6 2.9.4 1.3 1.6 2.2 3 2.2h.2V3.2zm1.6 0v14.3h.2c1.4 0 2.6-.9 3-2.2 1.5-.2 2.6-1.4 2.6-2.9 0-.8-.3-1.5-.8-2 .4-.5.6-1.1.6-1.8 0-1.6-1.1-2.8-2.6-3-.3-1.4-1.5-2.4-3-2.4z"/><path d="M11.2 18.4h1.6V21h-1.6z"/></svg>',wild:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.6 14.1 9 21.5 11 14.1 13 12 20.4 9.9 13 2.5 11 9.9 9z"/></svg>'};function Me({type:t,title:r}){return e("span",{className:"res res-"+t,title:r,dangerouslySetInnerHTML:{__html:Jt[t]}})}function O(t){let r=t&&t.resources;if(!r)return null;let a=[];for(let[n,s]of $)for(let c=0;c<(r[n]||0);c++)a.push(e(Me,{key:n+c,type:n,title:s}));return a.length?e("span",{className:"reslist"},a):null}function ee({value:t,onChange:r,options:a,label:n}){return e(Ce,{value:t,onValueChange:s=>s!==null&&r(s)},e(Pe,{"aria-label":n,className:"picker"},e(Le,null,a.find(s=>s[0]===t)?.[1]||t)),e(Ne,null,a.map(([s,c])=>e(Fe,{key:s,value:s},c))))}function xe({title:t,items:r}){let a=Math.max(1,...r.map(n=>n.v));return e("div",{className:"chart"},e("div",{className:"charttitle"},t),e("div",{className:"bars"},r.map(n=>e("div",{key:n.l,className:"bar",title:n.t||n.l},e("b",null,n.v),e("span",{className:"barfill",style:{height:(n.v?Math.max(3,n.v/a*100):0)+"%",background:n.c||"#6fa8e0"}}),e("small",null,n.l)))))}function gt({card:t,hero:r,deck:a,onSet:n}){if(C(t,r))return e("span",{className:"qtyfixed"},a.counts[t.id]||t.quantity||0,"장");let s=j(t,r),c=a.counts[t.id]||0,i=z(t,r,a),l=[];for(let m=0;m<=s;m++)l.push(e("button",{key:m,type:"button","aria-label":g(t)+" "+m+"장",className:c===m?"on":"",disabled:!i&&m>0,onClick:()=>n(t.id,m)},m));return e("span",{className:"qtybtns"},l)}var xt=0,ce=14,U=8;function bt(){let[t,r]=b(null),a=()=>r(null);return G(()=>(window.addEventListener("pointerdown",a,!0),window.addEventListener("keydown",a,!0),()=>{window.removeEventListener("pointerdown",a,!0),window.removeEventListener("keydown",a,!0)}),[]),{state:t,bind:(s,c="card",i="pointer")=>({onPointerEnter:l=>{if(l.pointerType==="touch")return;let m=i==="element"?l.currentTarget.getBoundingClientRect():null;r({id:++xt,card:s,kind:c,x:l.clientX,y:l.clientY,rect:m})},onPointerLeave:a,onFocus:l=>{if(!l.currentTarget.matches(":focus-visible"))return;let m=l.currentTarget.getBoundingClientRect();r({id:++xt,card:s,kind:c,x:m.right,y:m.top,rect:m})},onBlur:a}),hide:a}}var Kt=new Set;function wt({card:t,id:r,className:a}){let n=ie(r?{id:r}:t),[,s]=b(0);return!n||Kt.has(n)?null:e("img",{className:a||"cardimg",src:n,alt:t?g(t):"",loading:"lazy",onError:()=>{Kt.add(n),s(c=>c+1)}})}function Ut({card:t}){return e("div",{className:"cpbody"},e("div",{className:"cphead"},e("b",null,t.unique?"◆ ":"",g(t)),e("span",null,t.name)),e("div",{className:"cpmeta"},e("span",{className:"ctfac f-"+t.faction},E[t.faction]),e("span",null,N[t.type]),e("span",null,"비용 ",fe(t)),O(t)),e("div",{className:"cptraits"},t.traitsKo||t.traits||"특성 없음"),e("p",null,t.textKo||t.text||"효과 텍스트 없음"),t.textKo&&t.text?e("p",{className:"cpen"},t.text):null)}function Yt({hero:t,faces:r}){let a=Y(t),n=t.alterTextKo||t.alterText;return e("div",{className:"cpbody"},e("div",{className:"cphead"},e("b",null,t.unique?"◆ ":"",g(t)),e("span",null,[t.name,t.subKo||t.subname].filter(Boolean).join(" · "))),e("div",{className:"cpmeta"},e("span",null,t.traitsKo||t.traits||"특성 없음"),e("span",null,t.pack),a>1?e("em",{className:"cpaspects"},"성향 ",a):null),e("div",{className:"cpside"},"히어로"),e("p",null,t.textKo||t.text||"-"),n?e(A,null,e("div",{className:"cpside"},"일상"),e("p",null,n)):null,r.map((s,c)=>e("div",{key:s.id,className:"cpface"},e("div",{className:"cpside"},g(s)!==g(t)?g(s):"히어로 면 "+(c+2)),e("p",null,s.textKo||s.text||"-"),s.alterTextKo||s.alterText?e("p",null,s.alterTextKo||s.alterText):null)))}function qt({popup:t,faces:r}){let a=t.state;return a?e(zt,{key:a.id,state:a,faces:r}):null}function zt({state:t,faces:r}){let a=de(null),[n,s]=b(null),{card:c,kind:i}=t;Ie(()=>{let h=a.current,x=()=>{let p=h.offsetWidth,q=h.offsetHeight,S=window.innerWidth,I=window.innerHeight,M=t.rect,k,v;M?(k=M.right+ce/2,k+p>S-U&&(k=M.left-p-ce/2),k<U&&(k=Math.min(S-p-U,Math.max(U,M.left))),v=M.top):(k=t.x+ce,k+p>S-U&&(k=Math.max(U,t.x-p-ce)),v=t.y+ce),v+q>I-U&&(v=Math.max(U,I-q-U)),s({left:k,top:v})};x();let d=typeof ResizeObserver=="function"?new ResizeObserver(x):null;return d&&d.observe(h),()=>d&&d.disconnect()},[]);let l=i==="hero",m=l?[c.id,rt(c)]:[c.id],o=m.some(h=>ie(h===c.id?c:{id:h}));return e("div",{ref:a,className:"cardpop"+(l?" heropop":"")+(o?" withimg":""),role:"tooltip",style:n?{left:n.left+"px",top:n.top+"px"}:{left:0,top:0,visibility:"hidden"}},o?e("div",{className:"cpimgs"},m.map(h=>h===c.id?e(wt,{key:h,card:c}):e(wt,{key:h,id:h}))):null,l?e(Yt,{hero:c,faces:r?r(c):[]}):e(Ut,{card:c}))}function te({title:t,head:r,foot:a,onClose:n,className:s,children:c}){return G(()=>{let i=l=>{l.key==="Escape"&&!l.defaultPrevented&&n()};return window.addEventListener("keydown",i),()=>window.removeEventListener("keydown",i)},[n]),e("div",{className:"heromodal",onClick:i=>{i.target===i.currentTarget&&n()}},e("div",{className:"hmbox"+(s?" "+s:""),role:"dialog","aria-modal":"true","aria-label":t},e("div",{className:"hmhead"},e("h2",null,t),r,e("button",{type:"button",className:"hmclose","aria-label":"닫기",onClick:n},"×")),c,a?e("p",{className:"hmfoot"},a):null))}function kt({heroes:t,currentId:r,onPick:a,onClose:n,popup:s}){let[c,i]=b(""),l=c.toLowerCase(),m=t.filter(o=>{let h=[g(o),o.name,o.subKo||"",o.subname||"",o.traitsKo||""].join(" ").toLowerCase();return!l||h.includes(l)});return e(te,{title:"히어로 선택",onClose:n,head:e("input",{className:"hmsearch",autoFocus:!0,placeholder:"히어로 이름 검색",value:c,onChange:o=>i(o.target.value),onKeyDown:o=>{o.key==="Enter"&&m.length===1&&a(m[0].id)}}),foot:`히어로 ${t.length}명 · 고르면 전용 카드가 덱에 자동으로 들어갑니다. 마우스를 올리면 능력이 보입니다.`},e("div",{className:"hmgrid"},m.map(o=>{let h=Y(o);return e("button",{key:o.id,type:"button",className:"hmcard"+(o.id===r?" on":""),onClick:()=>a(o.id),...s.bind(o,"hero","element")},e("b",null,g(o)),e("span",{className:"hmsub"},o.subKo||o.subname||o.name),e("span",{className:"hmtr"},o.traitsKo||o.traits||""),e("span",{className:"hmpack"},o.pack,h>1?e("em",null,"성향 ",h):null))}),m.length===0?e("p",{className:"hmempty"},"‘",c,"’에 맞는 히어로가 없습니다."):null))}var Qt=[["all","모든 비용"],...Array.from({length:9},(t,r)=>[String(r),`비용 ${r}`]),["-1","비용 X"],["null","비용 없음"]],$t=[["ally","동료"],["event","이벤트"],["upgrade","업그레이드"],["support","지원"],["resource","자원"],["player_side_scheme","플레이어 부가 음모"]];function vt({cards:t,packs:r,shown:a,filters:n,setFilter:s,resetFilters:c,visible:i,showMore:l,hero:m,deck:o,onSetCount:h,onOpenCard:x,popup:d}){let{query:p,cost:q,pack:S,types:I,aspects:M,sortKey:k,sortDir:v,view:D,fitsDeck:X}=n,F=u=>e(gt,{card:u,hero:m,deck:o,onSet:h});return e("section",{className:"library"},e("div",{className:"libraryhead"},e("div",{className:"eyebrow"},"CARD LIBRARY"),e("span",{className:"catalog-count"},"한글 ",t.filter(u=>u.nameKo).length.toLocaleString(),"종")),e("div",{className:"searchbox"},e(B.Search,{size:20}),e("input",{"aria-label":"카드 이름·효과 검색",placeholder:"카드 이름, 효과, 특성 검색",value:p,onChange:u=>s("query",u.target.value)})),e("div",{className:"filters"},e(ee,{label:"카드 비용",value:q,onChange:u=>s("cost",u),options:Qt}),e(ee,{label:"확장팩",value:S,onChange:u=>s("pack",u),options:[["all","모든 확장팩"],...r.map(u=>[u,u])]})),e("div",{className:"togglebar"},e("div",{className:"tgroup"},e("span",{className:"tglabel"},"유형"),e("button",{type:"button",className:"tg all"+(I.length?"":" on"),"aria-pressed":!I.length,onClick:()=>s("types",[])},"전부"),$t.map(([u,f])=>{let w=I.includes(u);return e("button",{key:u,type:"button",className:"tg"+(w?" on":""),"aria-pressed":w,onClick:()=>s("types",w?[]:[u])},f)})),e("div",{className:"tgroup"},e("span",{className:"tglabel"},"성향"),Object.entries(E).filter(([u])=>u!=="hero").map(([u,f])=>{let w=M.includes(u);return e("button",{key:u,type:"button",className:"tg asp-"+u+(w?" on":""),"aria-pressed":w,onClick:()=>s("aspects",w?M.filter(K=>K!==u):[...M,u])},f)}))),e("div",{className:"filtermeta"},e("div",{className:"sortbar"},e("span",null,"정렬"),e("select",{className:"sortsel","aria-label":"정렬 기준",value:k,onChange:u=>s("sortKey",u.target.value)},st.map(([u,f])=>e("option",{key:u,value:u},f))),e("button",{type:"button",className:"sortdir","aria-label":"오름차순 내림차순 전환",onClick:()=>s("sortDir",v==="asc"?"desc":"asc")},v==="asc"?"↑ 오름":"↓ 내림")),e("div",{className:"viewtoggle"},e("button",{type:"button",className:D==="grid"?"on":"","aria-pressed":D==="grid",onClick:()=>s("view","grid",!0)},"카드"),e("button",{type:"button",className:D==="list"?"on":"","aria-pressed":D==="list",onClick:()=>s("view","list",!0)},"목록")),e("label",null,e(Xe,{checked:X,onCheckedChange:u=>s("fitsDeck",!!u,!0)})," 현재 덱에 맞는 카드"),e("span",null,a.length.toLocaleString(),"종"),e("button",{"aria-label":"검색 필터 초기화",onClick:c},e(B.RotateCcw,{size:15}))),D==="list"?e("div",{className:"cardtable"},e("div",{className:"ctrow cthead"},e("span",null,"수량"),e("span",null,"이름"),e("span",null,"자원"),e("span",null,"비용"),e("span",null,"유형"),e("span",null,"성향")),a.slice(0,i).map(u=>e("div",{key:u.id,className:"ctrow"+(o.counts[u.id]?" in":"")},F(u),e("button",{className:"ctname",...d.bind(u),onClick:()=>x(u)},u.unique?"● ":"",g(u)),e("span",{className:"ctres"},O(u)),e("span",{className:"ctcost"},fe(u)),e("span",{className:"cttype"},N[u.type]),e("span",{className:"ctfac f-"+u.faction},E[u.faction])))):e("div",{className:"cardgrid"},a.slice(0,i).map(u=>e("article",{key:u.id,className:"gamecard "+u.faction},e("div",null,e("span",{className:"cost",title:"카드 비용"},u.cost===-1?"X":u.cost??"—"),e("small",null,E[u.faction]," · ",N[u.type]),O(u),e("button",{className:"cardtitle",onClick:()=>x(u),...ie(u)?d.bind(u):{}},e("h2",null,u.unique?"◆ ":"",g(u))),e("div",{className:"english"},u.nameKo?u.name:"영문 카드 · 시트 번역 미연결"),e("div",{className:"traits"},u.traitsKo||u.traits||"특성 없음"),e("p",{className:"effect"},u.textKo||u.text||"효과 텍스트 없음")),e("div",{className:"cardbottom"},e("button",{className:"detailbutton",onClick:()=>x(u)},"상세 보기"),e("div",{className:"counter"},F(u)))))),a.length===0&&e("div",{className:"empty"},e(B.Search,{size:28}),e("h2",null,"검색 결과가 없습니다."),e("p",null,"다른 검색어를 입력하거나 필터를 초기화해 보세요."),e("button",{className:"secondary",onClick:c},"필터 초기화")),a.length>i&&e("button",{className:"loadmore secondary",onClick:l},"카드 더 보기 · ",Math.min(i,a.length)," / ",a.length),e("footer",null,e("p",null,Qe," 시트 사본 기준 · 실시간 동기화 아님"),e("p",null,"번역: ",e("span",null,"사용자 제공 시트")," · 카드 수치:"," ",e("a",{href:"https://marvelcdb.com",target:"_blank",rel:"noreferrer"},"MarvelCDB"),e("br",null),"전체 시트 중 카드 정보와 연결된 플레이어 카드만 수록했습니다. 비공식 팬 도구입니다.")))}function Tt({deck:t,setDeck:r,online:a}){let{link:n,isOwner:s,status:c,setStatus:i,busy:l,deleteArmed:m,mine:o,codeInput:h,setCodeInput:x}=a,d=(p,q)=>{try{navigator.clipboard.writeText(p)}catch{}i(q)};return e("details",{className:"online"},e("summary",null,"온라인 저장 · 공유"),e("textarea",{className:"memo",rows:3,maxLength:5e3,placeholder:"덱 메모 (선택)",value:t.memo||"",onChange:p=>r({...t,memo:p.target.value})}),e("label",{className:"pubchk"},e("input",{type:"checkbox",checked:t.isPublic!==!1,onChange:p=>r({...t,isPublic:p.target.checked})})," 공개 목록에 올리기"),e("div",{className:"onrow"},e("button",{type:"button",className:"primary",disabled:l,onClick:a.save},s?"수정 저장":n&&n.readOnly?"복사해서 새로 저장":"온라인 저장"),s?e("button",{type:"button",className:"secondary",disabled:l,onClick:a.unlink},"새 코드로"):null),n?e("div",{className:"oncode"},e("span",null,"덱 코드"),e("b",null,n.code),n.readOnly?e("small",null,"읽기 전용"):null,e("button",{type:"button",onClick:()=>d(n.code,"덱 코드를 복사했습니다. 남에게 공유할 때 쓰세요.")},"코드 복사"),s?e("button",{type:"button",onClick:()=>d(location.href.split("#")[0]+"#deck="+n.code+"&key="+n.key,"편집 링크를 복사했습니다. 다른 기기에서 고칠 때 쓰시고, 남에게는 주지 마세요.")},"편집 링크"):null,s?e("button",{type:"button",className:"ondel"+(m?" arm":""),disabled:l,onClick:a.remove},m?"한 번 더 누르면 삭제":"삭제"):null):null,e("div",{className:"onload"},e("input",{value:h,placeholder:"덱 코드로 불러오기  예: XDGD-QW4F",maxLength:9,onChange:p=>x(p.target.value),onKeyDown:p=>p.key==="Enter"&&a.load(h)}),e("button",{type:"button",className:"secondary",disabled:l,onClick:()=>a.load(h)},"불러오기")),c?e("p",{className:"onstatus"+(l?" busy":"")},c):null,o.length?e("details",{className:"mydecks"},e("summary",null,"이 브라우저의 내 덱 "+o.length+"개"),o.map(p=>e("div",{key:p.code,className:"myrow"},e("button",{type:"button",className:"mypick",disabled:l,onClick:()=>a.load(p.code,p.key)},e("em",null,p.code),e("span",null,p.name),e("small",null,p.heroName||"")),e("button",{type:"button",className:"forget","aria-label":p.name+" 목록에서 빼기",onClick:()=>a.forget(p.code)},"×")))):null)}var At=P.map(t=>[t,E[t]]);function Zt({hero:t,faces:r}){return e("details",{className:"heroinfo"},e("summary",null,"일상 / 히어로"),e("div",{className:"hiname"},t.unique?"◆ ":"",g(t),t.subname?e("small",null," · ",t.subKo||t.subname):null),e("div",{className:"hitraits"},t.traitsKo||t.traits||""),t.alterTextKo||t.alterText?e(A,null,e("div",{className:"hiside"},"일상"),e("p",null,t.alterTextKo||t.alterText)):null,e("div",{className:"hiside"},"히어로"),e("p",null,t.textKo||t.text||"-"),r.map((a,n)=>e("div",{key:a.id,className:"hiextra"},e("div",{className:"hiside"},g(a)!==g(t)?g(a):"히어로 면 "+(n+2)),e("div",{className:"hitraits"},a.traitsKo||a.traits||""),e("p",null,a.textKo||a.text||"-"),a.alterTextKo||a.alterText?e("p",null,a.alterTextKo||a.alterText):null)))}var jt=[["split","전용 카드 따로"],["type","유형별로 합치기"]],_t=["hero","ally","event","support","upgrade","resource","player_side_scheme"],ea=["ally","event","support","upgrade","resource","player_side_scheme"];function ta({card:t,hero:r,deck:a,inDeck:n,grouping:s,onOpenCard:c,onAdjust:i,popup:l}){let m=C(t,r),o=n.filter(h=>h.name===t.name).reduce((h,x)=>h+a.counts[x.id],0);return e("div",{className:"deckrow"+(m&&s==="type"?" sig":""),title:m&&s==="type"?"히어로 전용 카드":void 0},e("button",{className:"deckcard",onClick:()=>c(t),...l.bind(t,"card","element")},e("em",null,a.counts[t.id],"x"),t.unique?"● ":"",g(t),t.permanent&&e("small",null," 영속"),m&&s==="type"?e("span",{className:"sr-only"}," (히어로 전용)"):null),O(t),m?null:e("div",{className:"counter"},e("button",{"aria-label":`${g(t)} 덱에서 제거`,onClick:()=>i(t.id,-1)},e(B.Minus,{size:13})),e("b",null,a.counts[t.id]),e("button",{"aria-label":`${g(t)} 덱에 추가`,disabled:o>=j(t,r)||!z(t,r,a),onClick:()=>i(t.id,1)},e(B.Plus,{size:13}))))}function aa({hero:t,deck:r,inDeck:a,subdeck:n,grouping:s,setGrouping:c,onOpenCard:i,onAdjust:l,popup:m}){let o=d=>d.reduce((p,q)=>p+r.counts[q.id],0),h=(s==="type"?ea:_t).map(d=>({group:d,title:d==="hero"?"히어로 전용":N[d],list:a.filter(p=>s==="type"?p.type===d:d==="hero"?C(p,t):!C(p,t)&&p.type===d)})),x={hero:t,deck:r,inDeck:a,grouping:s,onOpenCard:i,onAdjust:l,popup:m};return e("div",{className:"decklist"},e("div",{className:"deckview",role:"group","aria-label":"덱 목록 보기 방식"},jt.map(([d,p])=>e("button",{key:d,type:"button",className:s===d?"on":"","aria-pressed":s===d,onClick:()=>c(d)},p))),s==="type"&&a.some(d=>C(d,t))?e("p",{className:"siglegend"},"초록 줄 = 히어로 전용 카드"):null,h.map(({group:d,title:p,list:q})=>q.length?e("div",{key:d,className:"deckgroup"},e("h3",null,p," ",e("span",null,o(q),"장")),q.map(S=>e(ta,{key:S.id,card:S,...x}))):null),n.length?e("div",{className:"deckgroup subdeck"},e("h3",null,"히어로 부속 덱 ",e("span",null,n.reduce((d,p)=>d+(p.quantity||1),0),"장")),n.map(d=>e("div",{key:d.id,className:"deckrow"},e("button",{className:"deckcard",onClick:()=>i(d),...m.bind(d,"card","element")},e("em",null,d.quantity||1,"x"),g(d)),O(d)))):null)}function ra({deck:t,inDeck:r}){let a=n=>r.reduce((s,c)=>s+(n(c)&&t.counts[c.id]||0),0);return e("details",{className:"charts"},e("summary",null,"덱 분석"),e(xe,{title:"비용",items:[0,1,2,3,4,5].map(n=>({l:n===5?"5+":String(n),v:a(s=>n===5?(s.cost||0)>=5:s.cost===n),c:"#6fa8e0"}))}),e(xe,{title:"성향",items:he.map(n=>({l:E[n],v:a(s=>s.faction===n),c:Z[n]})).filter(n=>n.v>0)}),e(xe,{title:"유형",items:["ally","event","support","upgrade","resource","player_side_scheme"].map(n=>({l:N[n],v:a(s=>s.type===n),c:"#8fa3bf"})).filter(n=>n.v>0)}))}function St({cards:t,hero:r,deck:a,setDeck:n,faces:s,subdeck:c,size:i,issues:l,inDeck:m,notice:o,online:h,onOpenHeroPicker:x,onOpenCard:d,onAdjust:p,onClearAdded:q,onImportFile:S,onNotice:I,grouping:M,setGrouping:k,popup:v}){let[D,X]=b(!1),F=de(null),u=Y(r),f=m.reduce((K,H)=>K+(C(H,r)?0:a.counts[H.id]||0),0),w=(K,H)=>{ut(K,a.name,H),I("덱 파일을 다운로드했습니다. 불러오기는 JSON 파일을 사용하세요.")};return e("aside",{className:"deckpanel"},e("div",{className:"deckhead"},e("div",{className:"eyebrow"},"YOUR DECK"),e(B.Shield,{size:20})),e("label",{className:"sr-only",htmlFor:"deck-name"},"덱 이름"),e("input",{id:"deck-name",className:"deckname",maxLength:100,value:a.name,onChange:K=>n({...a,name:K.target.value})}),e("label",{className:"fieldlabel"},"히어로"),e("button",{type:"button",className:"heropick",onClick:x},e("b",null,r?g(r):"히어로 선택"),e("span",null,r&&r.subname?r.subKo||r.subname:""),e("em",null,"변경")),r&&e(Zt,{hero:r,faces:s}),e("label",{className:"fieldlabel"},"성향"),u>=4?e("div",{className:"aspectfixed"},"성향 4개를 같은 장수로 ('풀 포함 5개 중 4개)"):e(ee,{label:"성향 선택",value:a.aspect,onChange:K=>n({...a,aspect:K}),options:At}),u===2&&e(A,null,e("label",{className:"fieldlabel"},"두 번째 성향"),e(ee,{label:"두 번째 성향",value:a.secondAspect,onChange:K=>n({...a,secondAspect:K}),options:At})),e("div",{className:"decktotal"},e("strong",null,i,e("small",null," / 40–50")),e("span",null,"장")),e(Ge,{"aria-label":"덱 장수",value:Math.min(i,_),max:_}),e("div",{className:"ressum"},$.map(([K,H])=>e("span",{key:K},e(Me,{type:K,title:H}),e("b",null,m.reduce((L,R)=>L+(R.resources&&R.resources[K]||0)*(a.counts[R.id]||0),0))))),e("button",{className:"clearbtn"+(D?" arm":""),type:"button",onClick:()=>{D?(q(),X(!1)):(X(!0),setTimeout(()=>X(!1),3e3))},disabled:!m.some(K=>!C(K,r)&&a.counts[K.id])},D?"한 번 더 누르면 비웁니다":e(A,null,"추가한 카드 비우기 ",e("b",null,f),"장")),e("div",{className:"validation","aria-live":"polite"},e("b",null,l.length?"덱을 확인하세요":"기본 구성 조건 충족"),l.slice(0,4).map((K,H)=>e("p",{key:H},K)),l.length>4&&e("p",null,"추가 확인 항목 ",l.length-4,"개")),e("details",{className:"rulesnote"},e("summary",null,"규칙 검사 범위"),e("p",null,"레거시 카드 풀의 장수·성향·동명 카드 제한을 검사합니다. 영속 카드는 덱 장수에서 제외합니다."),e("p",null,"히어로별 추가 조건, 카드별 덱 편입 조건, 멀티플레이 팀업 교체와 최신 제한 환경은 직접 확인하세요. 이 결과는 전체 적법성 판정이 아닙니다."),e("a",{href:$e,target:"_blank",rel:"noreferrer"},"공식 규칙 1.8 안내 ↗")),e(aa,{hero:r,deck:a,inDeck:m,subdeck:c,grouping:M,setGrouping:k,onOpenCard:d,onAdjust:p,popup:v}),e(ra,{deck:a,inDeck:m}),e(Tt,{deck:a,setDeck:n,online:h}),e("div",{className:"saveactions"},e("button",{className:"primary",onClick:()=>w(JSON.stringify(a,null,2),"json")},e(B.Download,{size:16})," 파일로 저장"),e("button",{className:"secondary",onClick:()=>F.current?.click()},e(B.Upload,{size:16})," 파일 불러오기"),e("button",{className:"text-export",onClick:()=>w(lt(t,r,a),"txt")},e(B.FileText,{size:15})," 텍스트 목록 내보내기")),e("input",{ref:F,className:"sr-only",type:"file",accept:".json,application/json","aria-label":"덱 파일 불러오기",onChange:async K=>{await S(K.target.files?.[0]),F.current&&(F.current.value="")}}),e("p",{className:"savehint"},"덱 저장은 파일로 다운로드됩니다.",e("br",null),"창을 닫기 전에 저장해 주세요."),e("div",{role:"status",className:"notice"},o))}function Ht({card:t,onClose:r}){return e(Be,{open:!!t,onOpenChange:a=>a||r()},e(Ve,{className:"carddetail"},t&&e(A,null,e(Oe,null,e(Je,{className:"detailtitle"},g(t)),e(Ue,null,t.name," · ",t.subname)),e("div",{className:"detailbody"},e("div",{className:"badges"},e("span",null,E[t.faction]),e("span",null,N[t.type]),e("span",null,"비용 ",t.cost===-1?"X":t.cost??"—"),O(t)&&e("span",{className:"resbadge"},O(t))),e("b",null,t.traitsKo||t.traits),e("p",null,t.textKo||t.text),e("h3",null,"영문 원문"),e("p",null,t.text),t.type==="hero"&&e("p",null,t.alterText),e("hr",null),e("p",{className:"metadata"},t.pack," · ",t.id,e("br",null),"동명 제한 ",t.limit||3,"장",t.permanent?" · 영속":"",e("br",null),t.sheet?`번역: ${t.sheet} / ${t.row}행`:"한글 번역 미연결"),e("a",{href:t.url,target:"_blank",rel:"noreferrer"},"원본 카드 보기 ↗")))))}var na=30,sa=t=>String(t||"").slice(0,10);function oa({deck:t}){return[t.aspect,t.secondAspect].filter(Boolean).map(r=>e("span",{key:r,className:"ctfac f-"+r},E[r]||r))}function ia({code:t,cardsById:r,onLoad:a,popup:n}){let[s,c]=b({status:"loading"});if(G(()=>{let o=!0;return V("get",{code:t}).then(h=>o&&c({status:"ok",deck:h.deck})).catch(h=>o&&c({status:"error",error:h.message})),()=>{o=!1}},[t]),s.status==="loading")return e("div",{className:"pdpreview muted"},"불러오는 중…");if(s.status==="error")return e("div",{className:"pdpreview muted"},s.error);let i=s.deck,l=Object.entries(i.counts||{}).filter(([o,h])=>h>0&&r[o]).map(([o,h])=>({card:r[o],n:h})),m=ye.map(o=>({type:o,items:l.filter(h=>h.card.type===o)})).filter(o=>o.items.length);return e("div",{className:"pdpreview"},i.memo?e("p",{className:"pdmemo"},i.memo):null,e("div",{className:"pdcards"},m.map(({type:o,items:h})=>e("div",{key:o,className:"pdgroup"},e("h4",null,N[o]," ",e("span",null,h.reduce((x,d)=>x+d.n,0),"장")),h.map(({card:x,n:d})=>e("div",{key:x.id,className:"pdcard",tabIndex:0,...n.bind(x)},e("em",null,d,"x")," ",g(x)))))),e("div",{className:"pdactions"},e("button",{type:"button",className:"primary",onClick:()=>a(t)},"이 덱 불러오기"),e("span",null,"불러오면 지금 화면의 덱을 바꿉니다. 저장하면 내 복사본이 새 코드로 만들어집니다.")))}function Mt({cards:t,heroes:r,currentHero:a,onLoad:n,onClose:s,popup:c}){let[i,l]=b(""),[m,o]=b(""),[h,x]=b(""),[d,p]=b({status:"loading",decks:[],total:0}),[q,S]=b(!1),[I,M]=b(null),k=Object.fromEntries(t.map(f=>[f.id,f])),v=f=>k[f.hero]?g(k[f.hero]):f.heroName||f.hero,D={q:i.trim(),hero:m,aspect:h,limit:na};G(()=>{let f=!0;p(K=>({...K,status:"loading"})),M(null),c.hide();let w=setTimeout(()=>{V("list",{...D,offset:0}).then(K=>f&&p({status:"ok",decks:K.decks||[],total:K.total||0})).catch(K=>f&&p({status:"error",error:K.message,decks:[],total:0}))},i?300:0);return()=>{f=!1,clearTimeout(w)}},[i,m,h]);let X=()=>{S(!0),V("list",{...D,offset:d.decks.length}).then(f=>p(w=>({...w,decks:[...w.decks,...f.decks||[]],total:f.total||w.total}))).catch(f=>p(w=>({...w,error:f.message}))).finally(()=>S(!1))},F=e("div",{className:"pdfilters"},e("input",{className:"hmsearch",autoFocus:!0,placeholder:"덱 이름 검색",value:i,onChange:f=>l(f.target.value),"aria-label":"덱 이름 검색"}),e("select",{className:"sortsel",value:m,onChange:f=>o(f.target.value),"aria-label":"히어로"},e("option",{value:""},"모든 히어로"),a?e("option",{value:a.id},"지금 히어로: ",g(a)):null,r.map(f=>e("option",{key:f.id,value:f.id},g(f)))),e("select",{className:"sortsel",value:h,onChange:f=>x(f.target.value),"aria-label":"성향"},e("option",{value:""},"모든 성향"),P.map(f=>e("option",{key:f,value:f},E[f])))),u;return d.status==="error"?u=e("p",{className:"pdempty"},d.error):d.status==="loading"&&!d.decks.length?u=e("p",{className:"pdempty"},"공개 덱을 불러오는 중…"):d.decks.length?u=e("ul",{className:"pdlist"+(d.status==="loading"?" stale":"")},d.decks.map(f=>{let w=I===f.code;return e("li",{key:f.code,className:w?"open":""},e("button",{type:"button",className:"pdrow","aria-expanded":w,onClick:()=>M(w?null:f.code)},e("span",{className:"pdname"},f.name),e("span",{className:"pdhero"},v(f)),e("span",{className:"pdaspects"},e(oa,{deck:f})),e("span",{className:"pdcount"},f.cardCount,"장"),e("span",{className:"pddate"},sa(f.updatedAt)),e("code",null,f.code)),w?e(ia,{code:f.code,cardsById:k,onLoad:n,popup:c}):null)})):u=e("p",{className:"pdempty"},"조건에 맞는 공개 덱이 없습니다."),e(te,{title:"공개 덱",className:"pdbox",onClose:s,head:F,foot:d.status==="ok"||d.decks.length?`공개 덱 ${d.total.toLocaleString()}개 · 최근 수정순 · 덱을 누르면 구성을 미리 봅니다.`:'다른 사람이 "공개 목록에 올리기"로 저장한 덱입니다.'},e("div",{className:"pdbody"},u,d.decks.length&&d.decks.length<d.total?e("button",{type:"button",className:"secondary loadmore",disabled:q,onClick:X},q?"불러오는 중…":`더 보기 · ${d.decks.length} / ${d.total}`):null))}var Ke=null,Re=t=>t>=.995?"100%":t>=.1?Math.round(t*100)+"%":(t*100).toFixed(1)+"%",We=40;function Ee({value:t,max:r,color:a,segments:n}){let s=r?Math.max(1.5,t/r*100):0;return e("span",{className:"stbar","aria-hidden":"true"},e("span",{className:"stfill",style:{width:s+"%",background:n?"none":a||"#6fa8e0"}},n?n.map(c=>e("span",{key:c.key,style:{flexGrow:c.value,background:c.color},title:c.title})):null))}function ca({stats:t,heroesById:r}){let a=Object.entries(t.heroes).map(([s,c])=>({id:s,name:r[s]?g(r[s]):c.name||s,count:c.count})).sort((s,c)=>c.count-s.count||s.name.localeCompare(c.name,"ko")),n=a.length?a[0].count:0;return e("ol",{className:"strows"},a.map((s,c)=>{let i=P.map(l=>({key:l,value:t.heroAspects[s.id+"|"+l]||0,color:Z[l],title:`${E[l]} ${t.heroAspects[s.id+"|"+l]||0}`})).filter(l=>l.value);return e("li",{key:s.id},e("span",{className:"strank"},c+1),e("span",{className:"stname"},s.name),e(Ee,{value:s.count,max:n,segments:i}),e("span",{className:"stnum"},s.count,"덱 ",e("small",null,Re(s.count/t.totalDecks))),e("span",{className:"staspects"},i.map(l=>e("span",{key:l.key,className:"ctfac f-"+l.key},E[l.key]," ",l.value))))}))}function la({stats:t}){let r=P.map(n=>({a:n,count:t.aspects[n]||0})).sort((n,s)=>s.count-n.count),a=Math.max(1,...r.map(n=>n.count));return e(A,null,e("ol",{className:"strows"},r.map((n,s)=>e("li",{key:n.a},e("span",{className:"strank"},s+1),e("span",{className:"stname ctfac f-"+n.a},E[n.a]),e(Ee,{value:n.count,max:a,color:Z[n.a]}),e("span",{className:"stnum"},n.count,"덱 ",e("small",null,Re(n.count/t.totalDecks)))))),e("p",{className:"stnote"},"두 성향을 쓰는 덱(스파이더우먼 등)은 양쪽에 모두 셉니다."))}function ua({stats:t,cards:r,popup:a,initialFaction:n}){let[s,c]=b(n),[i,l]=b(We),m=r.filter(o=>o.type!=="hero"&&o.faction!=="hero"&&t.cardDecks[o.id]).filter(o=>s==="all"||o.faction===s).map(o=>{let h=o.faction==="basic"?t.totalDecks:t.aspects[o.faction]||0,x=t.cardDecks[o.id];return{card:o,decks:x,pool:h,rate:h?Math.min(1,x/h):0,avg:(t.cardCopies[o.id]||0)/x}}).sort((o,h)=>h.rate-o.rate||h.decks-o.decks||g(o.card).localeCompare(g(h.card),"ko"));return e(A,null,e("div",{className:"tgroup stchips"},["all","basic",...P].map(o=>e("button",{key:o,type:"button",className:"tg"+(o==="all"?" all":" asp-"+o)+(s===o?" on":""),"aria-pressed":s===o,onClick:()=>{c(o),l(We)}},o==="all"?"전부":E[o]))),m.length?e("ol",{className:"strows stcards"},m.slice(0,i).map((o,h)=>e("li",{key:o.card.id},e("span",{className:"strank"},h+1),e("span",{className:"stname",tabIndex:0,...a.bind(o.card)},g(o.card),e("small",null,e("span",{className:"ctfac f-"+o.card.faction},E[o.card.faction])," · ",N[o.card.type])),e(Ee,{value:o.rate,max:1,color:Z[o.card.faction]}),e("span",{className:"stnum"},Re(o.rate)," ",e("small",null,o.decks,"/",o.pool,"덱 · 평균 ",o.avg.toFixed(1),"장"))))):e("p",{className:"pdempty"},"아직 이 성향 카드를 쓴 덱이 없습니다."),m.length>i?e("button",{type:"button",className:"secondary loadmore",onClick:()=>l(o=>o+We)},"더 보기 · ",i," / ",m.length):null,e("p",{className:"stnote"},"채용률 = 그 카드를 넣은 덱 ÷ 넣을 수 있는 덱(기본 카드는 전체 덱, 성향 카드는 그 성향을 고른 덱). 히어로 전용 카드는 뺐습니다."))}var ma=[["cards","카드 채용률"],["heroes","히어로"],["aspects","성향"]];function Wt({cards:t,heroes:r,deckAspect:a,onClose:n,popup:s}){let[c,i]=b(Ke?{status:"ok",stats:Ke}:{status:"loading"}),[l,m]=b("cards"),o=Object.fromEntries(r.map(p=>[p.id,p]));G(()=>{if(Ke)return;let p=!0;return V("stats").then(q=>{Ke=q,p&&i({status:"ok",stats:q})}).catch(q=>p&&i({status:"error",error:q.message})),()=>{p=!1}},[]);let h=e("div",{className:"viewtoggle sttabs",role:"tablist"},ma.map(([p,q])=>e("button",{key:p,type:"button",role:"tab","aria-selected":l===p,className:l===p?"on":"",onClick:()=>m(p)},q))),x,d=c.stats;return c.status==="loading"?x=e("p",{className:"pdempty"},"통계를 불러오는 중…"):c.status==="error"?x=e("p",{className:"pdempty"},c.error):d.totalDecks?l==="heroes"?x=e(ca,{stats:d,heroesById:o}):l==="aspects"?x=e(la,{stats:d}):x=e(ua,{stats:d,cards:t,popup:s,initialFaction:P.includes(a)?a:"all"}):x=e("p",{className:"pdempty"},"아직 온라인에 저장된 덱이 없습니다."),e(te,{title:"인기 통계",className:"stbox",onClose:n,head:h,foot:d?`저장된 덱 ${d.totalDecks.toLocaleString()}개 기준(비공개 덱 포함, 합계만 공개) · ${String(d.generatedAt||"").slice(0,16)} 집계 · 10분마다 갱신`:"온라인에 저장된 덱을 모아 셉니다."},e("div",{className:"pdbody stbody"},x))}var le=24,Rt={query:"",cost:"all",pack:"all",types:[],aspects:[],fitsDeck:!0,sortKey:"name",sortDir:"asc",view:"list"},Et=["sortKey","sortDir","view"];function It({cards:t}){let r=se(()=>tt(t),[t]),a=se(()=>new Set(r.map(y=>y.set)),[r]),n=se(()=>Array.from(new Set(t.map(y=>y.pack))).sort(),[t]),[s,c]=b(ht),[i,l]=b(()=>ve(t,t.find(y=>y.type==="hero"&&y.name==="Groot").id)),[m,o]=b(()=>{let y={...Rt};for(let T of Et)s[T]&&(y[T]=s[T]);return y}),[h,x]=b(le),[d,p]=b(null),[q,S]=b(""),[I,M]=b("heroes"),k=bt(),v=r.find(y=>y.id===i.hero),D=Te(t,i),X=ge(t,i),F=it(t,v,i),u=ft({heroes:r,hero:v,deck:i,setDeck:l,inDeck:D,onLoaded:({name:y,message:T})=>{M(null),S(`‘${y}’ — ${T}`)}}),f=y=>{c(T=>{let W={...T,...y};return yt(W),W})};G(()=>{let y=location.hash||"",T=/deck=([A-Za-z0-9-]{9})/.exec(y),W=/key=([a-f0-9]{40})/.exec(y);T&&(M(null),u.load(T[1],W?W[1]:""))},[]);let{query:w,cost:K,pack:H,types:L,aspects:R,fitsDeck:Q,sortKey:ae,sortDir:ue}=m,Dt=se(()=>ot(t.filter(y=>y.type!=="hero"&&y.faction!=="hero"&&!pe(y.set)&&!(y.set&&a.has(y.set))&&(!Q||z(y,v,i))&&(!L.length||L.includes(y.type))&&(!R.length||R.includes(y.faction))&&(H==="all"||y.pack===H)&&(K==="all"||String(y.cost)===K)&&nt(y,w)),ae,ue),[t,a,v,i,w,K,H,L,R,Q,ae,ue]),Ct=(y,T,W)=>{o(re=>({...re,[y]:T})),W||x(le),Et.includes(y)&&f({[y]:T})},Pt=()=>{o(y=>({...Rt,sortKey:y.sortKey,sortDir:y.sortDir,view:y.view})),x(le)},Lt=(y,T)=>{C(t.find(W=>W.id===y),v)||l(W=>({...W,counts:{...W.counts,[y]:T}}))},Nt=(y,T)=>{C(t.find(W=>W.id===y),v)||l(W=>({...W,counts:{...W.counts,[y]:Math.max(0,(W.counts[y]||0)+T)}}))},Ft=()=>{l(y=>({...y,counts:Object.fromEntries(Object.entries(y.counts).filter(([T])=>{let W=t.find(re=>re.id===T);return W&&C(W,v)}))}))},Xt=y=>{l(T=>{let W=ve(t,y);return{...W,memo:T.memo,isPublic:T.isPublic,aspect:T.aspect,counts:{...Object.fromEntries(Object.entries(T.counts).filter(([re])=>t.find(Bt=>Bt.id===re)?.faction!=="hero")),...W.counts}}}),S("히어로 전용 카드를 교체했습니다. 나머지 카드는 유지됩니다."),x(le)};async function Gt(y){if(y)try{if(y.size>1e6)throw Error("덱 파일은 1MB 이하여야 합니다.");l(ct(JSON.parse(await y.text()),t)),S("덱을 불러왔습니다.")}catch(T){S(T instanceof Error?T.message:"파일을 읽지 못했습니다.")}}let me=()=>M(null);return e("main",null,e("header",{className:"topbar"},e("span",{className:"apptitle"},"마블 챔피언스",e("br",{className:"mobilebreak"})," 한글 덱 빌더"),e("nav",{className:"topnav"},e("button",{type:"button",className:I==="decks"?"on":"",onClick:()=>M("decks")},"공개 덱"),e("button",{type:"button",className:I==="stats"?"on":"",onClick:()=>M("stats")},"인기 통계"))),e("div",{className:"workspace"},e(vt,{cards:t,packs:n,shown:Dt,filters:m,setFilter:Ct,resetFilters:Pt,visible:h,showMore:()=>x(y=>y+le),hero:v,deck:i,onSetCount:Lt,onOpenCard:p,popup:k}),e(qt,{popup:k,faces:y=>qe(t,y)}),I==="heroes"?e(kt,{heroes:r,currentId:i.hero,popup:k,onPick:y=>{y!==i.hero&&Xt(y),me()},onClose:me}):null,I==="decks"?e(Mt,{cards:t,heroes:r,currentHero:v,popup:k,onLoad:y=>u.load(y),onClose:me}):null,I==="stats"?e(Wt,{cards:t,heroes:r,deckAspect:i.aspect,popup:k,onClose:me}):null,e(St,{cards:t,hero:v,deck:i,setDeck:l,faces:qe(t,v),subdeck:at(t,v),size:X,issues:F,inDeck:D,notice:q,online:u,onOpenHeroPicker:()=>M("heroes"),onOpenCard:p,onAdjust:Nt,onClearAdded:Ft,onImportFile:Gt,onNotice:S,grouping:s.deckGrouping||"split",setGrouping:y=>f({deckGrouping:y}),popup:k})),e(Ht,{card:d,onClose:()=>p(null)}))}De(document.getElementById("root")).render(e(It,{cards:Ye}));})();
 </script>
 </body>
 </html>

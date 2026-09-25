@@ -19,7 +19,6 @@ import { BarChart, Picker, ResourceIcon, resourceIcons } from './common.jsx';
 import { OnlinePanel } from './OnlinePanel.jsx';
 
 const ASPECT_OPTIONS = ASPECTS.map((a) => [a, FACTION_LABEL[a]]);
-const DECK_GROUPS = ['hero', 'ally', 'event', 'support', 'upgrade', 'resource', 'player_side_scheme'];
 
 /** 히어로 능력 접는 칸 */
 function HeroInfo({ hero, faces }) {
@@ -52,49 +51,85 @@ function HeroInfo({ hero, faces }) {
   );
 }
 
-function DeckList({ hero, deck, inDeck, subdeck, onOpenCard, onAdjust }) {
-  const total = (list) => list.reduce((n, c) => n + deck.counts[c.id], 0);
+/** 덱 목록 보기 방식: 히어로 전용 카드를 따로 / 유형별로 합쳐서 */
+const GROUPINGS = [
+  ['split', '전용 카드 따로'],
+  ['type', '유형별로 합치기'],
+];
+const SPLIT_GROUPS = ['hero', 'ally', 'event', 'support', 'upgrade', 'resource', 'player_side_scheme'];
+const TYPE_GROUPS = ['ally', 'event', 'support', 'upgrade', 'resource', 'player_side_scheme'];
+
+function DeckRow({ card: c, hero, deck, inDeck, grouping, onOpenCard, onAdjust, popup }) {
+  const signature = isSignature(c, hero);
+  const sameName = inDeck.filter((x) => x.name === c.name).reduce((n, x) => n + deck.counts[x.id], 0);
   return (
-    <>
-      <div className="decklist">
-        {DECK_GROUPS.map((group) => {
-          const list = inDeck.filter((c) => (group === 'hero' ? isSignature(c, hero) : !isSignature(c, hero) && c.type === group));
-          if (!list.length) return null;
-          return (
-            <div key={group} className="deckgroup">
-              <h3>
-                {group === 'hero' ? '히어로 전용' : TYPE_LABEL[group]} <span>{total(list)}장</span>
-              </h3>
-              {list.map((c) => (
-                <div key={c.id} className="deckrow">
-                  <button className="deckcard" onClick={() => onOpenCard(c)}>
-                    <em>{deck.counts[c.id]}x</em>
-                    {c.unique ? '● ' : ''}
-                    {cardName(c)}
-                    {c.permanent && <small> 영속</small>}
-                  </button>
-                  {resourceIcons(c)}
-                  {isSignature(c, hero) ? null : (
-                    <div className="counter">
-                      <button aria-label={`${cardName(c)} 덱에서 제거`} onClick={() => onAdjust(c.id, -1)}>
-                        <Icon.Minus size={13} />
-                      </button>
-                      <b>{deck.counts[c.id]}</b>
-                      <button
-                        aria-label={`${cardName(c)} 덱에 추가`}
-                        disabled={total(inDeck.filter((x) => x.name === c.name)) >= copyLimit(c, hero) || !canInclude(c, hero, deck)}
-                        onClick={() => onAdjust(c.id, 1)}
-                      >
-                        <Icon.Plus size={13} />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          );
-        })}
+    <div className={'deckrow' + (signature && grouping === 'type' ? ' sig' : '')} title={signature && grouping === 'type' ? '히어로 전용 카드' : undefined}>
+      <button className="deckcard" onClick={() => onOpenCard(c)} {...popup.bind(c, 'card', 'element')}>
+        <em>{deck.counts[c.id]}x</em>
+        {c.unique ? '● ' : ''}
+        {cardName(c)}
+        {c.permanent && <small> 영속</small>}
+        {signature && grouping === 'type' ? <span className="sr-only"> (히어로 전용)</span> : null}
+      </button>
+      {resourceIcons(c)}
+      {signature ? null : (
+        <div className="counter">
+          <button aria-label={`${cardName(c)} 덱에서 제거`} onClick={() => onAdjust(c.id, -1)}>
+            <Icon.Minus size={13} />
+          </button>
+          <b>{deck.counts[c.id]}</b>
+          <button
+            aria-label={`${cardName(c)} 덱에 추가`}
+            disabled={sameName >= copyLimit(c, hero) || !canInclude(c, hero, deck)}
+            onClick={() => onAdjust(c.id, 1)}
+          >
+            <Icon.Plus size={13} />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DeckList({ hero, deck, inDeck, subdeck, grouping, setGrouping, onOpenCard, onAdjust, popup }) {
+  const total = (list) => list.reduce((n, c) => n + deck.counts[c.id], 0);
+  const groups = (grouping === 'type' ? TYPE_GROUPS : SPLIT_GROUPS).map((group) => ({
+    group,
+    title: group === 'hero' ? '히어로 전용' : TYPE_LABEL[group],
+    list: inDeck.filter((c) =>
+      grouping === 'type' ? c.type === group : group === 'hero' ? isSignature(c, hero) : !isSignature(c, hero) && c.type === group,
+    ),
+  }));
+  const rowProps = { hero, deck, inDeck, grouping, onOpenCard, onAdjust, popup };
+
+  return (
+    <div className="decklist">
+      <div className="deckview" role="group" aria-label="덱 목록 보기 방식">
+        {GROUPINGS.map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            className={grouping === value ? 'on' : ''}
+            aria-pressed={grouping === value}
+            onClick={() => setGrouping(value)}
+          >
+            {label}
+          </button>
+        ))}
       </div>
+      {grouping === 'type' && inDeck.some((c) => isSignature(c, hero)) ? <p className="siglegend">초록 줄 = 히어로 전용 카드</p> : null}
+      {groups.map(({ group, title, list }) =>
+        list.length ? (
+          <div key={group} className="deckgroup">
+            <h3>
+              {title} <span>{total(list)}장</span>
+            </h3>
+            {list.map((c) => (
+              <DeckRow key={c.id} card={c} {...rowProps} />
+            ))}
+          </div>
+        ) : null,
+      )}
       {subdeck.length ? (
         <div className="deckgroup subdeck">
           <h3>
@@ -102,7 +137,7 @@ function DeckList({ hero, deck, inDeck, subdeck, onOpenCard, onAdjust }) {
           </h3>
           {subdeck.map((c) => (
             <div key={c.id} className="deckrow">
-              <button className="deckcard" onClick={() => onOpenCard(c)}>
+              <button className="deckcard" onClick={() => onOpenCard(c)} {...popup.bind(c, 'card', 'element')}>
                 <em>{c.quantity || 1}x</em>
                 {cardName(c)}
               </button>
@@ -111,7 +146,7 @@ function DeckList({ hero, deck, inDeck, subdeck, onOpenCard, onAdjust }) {
           ))}
         </div>
       ) : null}
-    </>
+    </div>
   );
 }
 
@@ -160,6 +195,9 @@ export function DeckPanel({
   onClearAdded,
   onImportFile,
   onNotice,
+  grouping,
+  setGrouping,
+  popup,
 }) {
   const [clearArmed, setClearArmed] = useState(false);
   const fileInput = useRef(null);
@@ -262,7 +300,17 @@ export function DeckPanel({
         </a>
       </details>
 
-      <DeckList hero={hero} deck={deck} inDeck={inDeck} subdeck={subdeck} onOpenCard={onOpenCard} onAdjust={onAdjust} />
+      <DeckList
+        hero={hero}
+        deck={deck}
+        inDeck={inDeck}
+        subdeck={subdeck}
+        grouping={grouping}
+        setGrouping={setGrouping}
+        onOpenCard={onOpenCard}
+        onAdjust={onAdjust}
+        popup={popup}
+      />
       <DeckCharts deck={deck} inDeck={inDeck} />
       <OnlinePanel deck={deck} setDeck={setDeck} online={online} />
 

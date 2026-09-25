@@ -2,6 +2,7 @@
 //   npm install        (처음 한 번)
 //   npm run build      → index.html
 //   npm run watch      → src/ 가 바뀔 때마다 다시 만든다
+//   DEBUG=1 npm run build → 앱 코드를 압축하지 않는다 (오류 위치 찾을 때)
 import * as esbuild from 'esbuild';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -21,11 +22,11 @@ const appOptions = {
   format: 'iife',
   target: 'es2020',
   charset: 'utf8',
-  minify: true,
+  minify: !process.env.DEBUG,
   legalComments: 'none',
   jsx: 'transform',
-  jsxFactory: 'h',
-  jsxFragment: 'Fragment',
+  jsxFactory: '__jsx',
+  jsxFragment: '__Fragment',
   inject: [src('app', 'jsx-shim.js')],
   logLevel: 'warning',
 };
