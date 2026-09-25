@@ -1049,9 +1049,6 @@ footer p {
 .heroinfo > *:last-child {
   padding-bottom: 12px;
 }
-.heroinfo .hiname {
-  display: none;
-}
 .heroinfo .hitraits {
   margin: 1px 0 2px;
   color: var(--dl-dim);

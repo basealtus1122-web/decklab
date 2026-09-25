@@ -25,11 +25,6 @@ function HeroInfo({ hero, faces }) {
   return (
     <details className="heroinfo">
       <summary>일상 / 히어로</summary>
-      <div className="hiname">
-        {hero.unique ? '◆ ' : ''}
-        {cardName(hero)}
-        {hero.subname ? <small> · {hero.subKo || hero.subname}</small> : null}
-      </div>
       <div className="hitraits">{hero.traitsKo || hero.traits || ''}</div>
       {hero.alterTextKo || hero.alterText ? (
         <>
