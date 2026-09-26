@@ -28,6 +28,8 @@ const appOptions = {
   jsxFactory: '__jsx',
   jsxFragment: '__Fragment',
   inject: [src('app', 'jsx-shim.js')],
+  // 데이터 CSV(히어로 수치 등)는 글자 그대로 들여와 앱에서 읽는다
+  loader: { '.csv': 'text' },
   logLevel: 'warning',
 };
 

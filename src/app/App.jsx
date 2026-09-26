@@ -246,6 +246,8 @@ export function App({ cards }) {
           onNotice={setNotice}
           grouping={prefs.deckGrouping || 'split'}
           setGrouping={(g) => updatePrefs({ deckGrouping: g })}
+          compact={!!prefs.deckCompact}
+          setCompact={(v) => updatePrefs({ deckCompact: v })}
           popup={popup}
         />
       </div>

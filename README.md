@@ -35,6 +35,7 @@ src/
   data/
     cards.json          카드 데이터 (한 줄에 카드 하나)
     search.js           특성 검색 별칭, 히어로 부속 덱, 제외 세트
+    hero-stats.csv      히어로 수치 (체력·저지·공격·방어·손패, 일상 이름·회복·손패)
   vendor/               라이브러리 묶음 (수정 금지)
     libs.js             React 19, Base UI, lucide 아이콘, shadcn/ui 컴포넌트
     tailwind.css        Tailwind CSS 4 컴파일 결과
@@ -49,6 +50,21 @@ apps-script/Code.gs     온라인 덱 저장소 (Google Apps Script)
 ```js
 export const CARD_IMAGE_URL = 'https://example.com/cards/{id}.jpg';
 ```
+
+## 히어로 수치 넣기
+
+`src/data/hero-stats.csv`에 히어로 면마다 한 줄씩 틀이 만들어져 있다. 수치 칸을 채우면 히어로 선택 창의 팝업과 덱 패널의 "일상 / 히어로" 칸에 나온다. 비어 있는 칸은 화면에 나오지 않는다.
+
+| 머리글 | 뜻 |
+| --- | --- |
+| `id` | 카드 ID (바꾸지 말 것) |
+| `히어로(참고용)` | 사람이 보기 위한 이름. 읽지 않는다 |
+| `체력` `저지` `공격` `방어` `히어로손패` | 히어로 면 수치 |
+| `일상이름` `회복` `일상손패` | 일상 면 (예: 피터 파커, 3, 6) |
+
+1. 엑셀이나 구글 시트로 열어 채운다. 앤트맨처럼 면이 여럿인 히어로는 면마다 줄이 따로 있다.
+2. 엑셀은 "CSV UTF-8(쉼표로 분리)", 구글 시트는 "파일 → 다운로드 → CSV"로 저장해 같은 이름으로 바꿔 넣는다.
+3. `npm run build`.
 
 ## 온라인 덱 저장소
 

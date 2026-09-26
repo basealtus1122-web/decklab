@@ -15,29 +15,36 @@ import {
   isSignature,
 } from '../cards.js';
 import { DECK_MAX, deckText, downloadText } from '../deck.js';
-import { BarChart, Picker, ResourceIcon, resourceIcons } from './common.jsx';
+import { BarChart, Picker, ResourceIcon, StatChips, resourceIcons } from './common.jsx';
+import { alterSideStats, heroSideStats, heroStats } from '../heroStats.js';
 import { OnlinePanel } from './OnlinePanel.jsx';
 
 const ASPECT_OPTIONS = ASPECTS.map((a) => [a, FACTION_LABEL[a]]);
 
 /** 히어로 능력 접는 칸 */
 function HeroInfo({ hero, faces }) {
+  const stats = heroStats(hero);
+  const alterStats = alterSideStats(stats);
+  const alter = hero.alterTextKo || hero.alterText;
   return (
     <details className="heroinfo">
       <summary>일상 / 히어로</summary>
       <div className="hitraits">{hero.traitsKo || hero.traits || ''}</div>
-      {hero.alterTextKo || hero.alterText ? (
+      {alter || alterStats.length ? (
         <>
-          <div className="hiside">일상</div>
-          <p>{hero.alterTextKo || hero.alterText}</p>
+          <div className="hiside">일상{stats?.alterName ? ' · ' + stats.alterName : ''}</div>
+          <StatChips items={alterStats} />
+          {alter ? <p>{alter}</p> : null}
         </>
       ) : null}
       <div className="hiside">히어로</div>
+      <StatChips items={heroSideStats(stats)} />
       <p>{hero.textKo || hero.text || '-'}</p>
       {faces.map((face, i) => (
         <div key={face.id} className="hiextra">
           <div className="hiside">{cardName(face) !== cardName(hero) ? cardName(face) : '히어로 면 ' + (i + 2)}</div>
           <div className="hitraits">{face.traitsKo || face.traits || ''}</div>
+          <StatChips items={heroSideStats(heroStats(face))} />
           <p>{face.textKo || face.text || '-'}</p>
           {face.alterTextKo || face.alterText ? <p>{face.alterTextKo || face.alterText}</p> : null}
         </div>
@@ -192,6 +199,8 @@ export function DeckPanel({
   onNotice,
   grouping,
   setGrouping,
+  compact,
+  setCompact,
   popup,
 }) {
   const [clearArmed, setClearArmed] = useState(false);
@@ -204,12 +213,59 @@ export function DeckPanel({
     onNotice('덱 파일을 다운로드했습니다. 불러오기는 JSON 파일을 사용하세요.');
   };
 
+  const head = (
+    <div className="deckhead">
+      <div className="eyebrow">YOUR DECK</div>
+      <button
+        type="button"
+        className={'compacttoggle' + (compact ? ' on' : '')}
+        aria-pressed={compact}
+        title={compact ? '히어로·성향·저장 칸까지 모두 보기' : '덱 이름·장수와 덱 목록만 남기기'}
+        onClick={() => setCompact(!compact)}
+      >
+        {compact ? '전체 보기' : '덱 목록만'}
+      </button>
+      <Icon.Shield size={20} />
+    </div>
+  );
+  const deckList = (
+    <DeckList
+      hero={hero}
+      deck={deck}
+      inDeck={inDeck}
+      subdeck={subdeck}
+      grouping={grouping}
+      setGrouping={setGrouping}
+      onOpenCard={onOpenCard}
+      onAdjust={onAdjust}
+      popup={popup}
+    />
+  );
+
+  // 덱 목록만: 휴대폰에서 덱 패널이 짧아져 카드 목록까지 금방 내려간다
+  if (compact) {
+    return (
+      <aside className="deckpanel compact">
+        {head}
+        <div className="deckmini">
+          <b>{deck.name}</b>
+          <span>{hero ? cardName(hero) : ''}</span>
+          <strong className={size < 40 || size > DECK_MAX ? 'short' : 'ok'}>
+            {size}
+            <small> / 40–50장</small>
+          </strong>
+        </div>
+        {deckList}
+        <div role="status" className="notice">
+          {notice}
+        </div>
+      </aside>
+    );
+  }
+
   return (
     <aside className="deckpanel">
-      <div className="deckhead">
-        <div className="eyebrow">YOUR DECK</div>
-        <Icon.Shield size={20} />
-      </div>
+      {head}
       <label className="sr-only" htmlFor="deck-name">
         덱 이름
       </label>
@@ -295,17 +351,7 @@ export function DeckPanel({
         </a>
       </details>
 
-      <DeckList
-        hero={hero}
-        deck={deck}
-        inDeck={inDeck}
-        subdeck={subdeck}
-        grouping={grouping}
-        setGrouping={setGrouping}
-        onOpenCard={onOpenCard}
-        onAdjust={onAdjust}
-        popup={popup}
-      />
+      {deckList}
       <DeckCharts deck={deck} inDeck={inDeck} />
       <OnlinePanel deck={deck} setDeck={setDeck} online={online} />
 

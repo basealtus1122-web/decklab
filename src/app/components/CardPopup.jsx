@@ -1,7 +1,8 @@
 // 마우스를 올리면 뜨는 카드 팝업 (카드 목록, 덱 목록, 히어로 선택 창, 통계 공통)
 import { useState, useEffect, useLayoutEffect, useRef } from '../vendor.js';
 import { FACTION_LABEL, TYPE_LABEL, aspectCount, alterEgoId, cardImage, cardName, costLabel } from '../cards.js';
-import { resourceIcons } from './common.jsx';
+import { resourceIcons, StatChips } from './common.jsx';
+import { alterSideStats, heroSideStats, heroStats } from '../heroStats.js';
 
 let popupSeq = 0;
 
@@ -95,6 +96,8 @@ function CardBody({ card: c }) {
 function HeroBody({ hero, faces }) {
   const aspects = aspectCount(hero);
   const alter = hero.alterTextKo || hero.alterText;
+  const stats = heroStats(hero);
+  const alterStats = alterSideStats(stats);
   return (
     <div className="cpbody">
       <div className="cphead">
@@ -102,7 +105,7 @@ function HeroBody({ hero, faces }) {
           {hero.unique ? '◆ ' : ''}
           {cardName(hero)}
         </b>
-        <span>{[hero.name, hero.subKo || hero.subname].filter(Boolean).join(' · ')}</span>
+        <span>{[hero.name, stats?.alterName || hero.subKo || hero.subname].filter(Boolean).join(' · ')}</span>
       </div>
       <div className="cpmeta">
         <span>{hero.traitsKo || hero.traits || '특성 없음'}</span>
@@ -110,16 +113,19 @@ function HeroBody({ hero, faces }) {
         {aspects > 1 ? <em className="cpaspects">성향 {aspects}</em> : null}
       </div>
       <div className="cpside">히어로</div>
+      <StatChips items={heroSideStats(stats)} />
       <p>{hero.textKo || hero.text || '-'}</p>
-      {alter ? (
+      {alter || alterStats.length ? (
         <>
-          <div className="cpside">일상</div>
-          <p>{alter}</p>
+          <div className="cpside">일상{stats?.alterName ? ' · ' + stats.alterName : ''}</div>
+          <StatChips items={alterStats} />
+          {alter ? <p>{alter}</p> : null}
         </>
       ) : null}
       {faces.map((face, i) => (
         <div key={face.id} className="cpface">
           <div className="cpside">{cardName(face) !== cardName(hero) ? cardName(face) : '히어로 면 ' + (i + 2)}</div>
+          <StatChips items={heroSideStats(heroStats(face))} />
           <p>{face.textKo || face.text || '-'}</p>
           {face.alterTextKo || face.alterText ? <p>{face.alterTextKo || face.alterText}</p> : null}
         </div>

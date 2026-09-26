@@ -92,3 +92,17 @@ export function QuantityButtons({ card, hero, deck, onSet }) {
   }
   return <span className="qtybtns">{buttons}</span>;
 }
+
+/** 히어로 수치 칩 (체력 10 · 저지 1 …). 목록이 비면 아무것도 그리지 않는다 */
+export function StatChips({ items }) {
+  if (!items.length) return null;
+  return (
+    <div className="herostats">
+      {items.map(([label, value]) => (
+        <span key={label}>
+          {label} <b>{value}</b>
+        </span>
+      ))}
+    </div>
+  );
+}
