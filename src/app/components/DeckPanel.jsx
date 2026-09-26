@@ -18,6 +18,7 @@ import { DECK_MAX, deckText, downloadText } from '../deck.js';
 import { BarChart, Picker, ResourceIcon, StatChips, resourceIcons } from './common.jsx';
 import { alterSideStats, heroSideStats, heroStats } from '../heroStats.js';
 import { OnlinePanel } from './OnlinePanel.jsx';
+import { RichText } from './RichText.jsx';
 
 const ASPECT_OPTIONS = ASPECTS.map((a) => [a, FACTION_LABEL[a]]);
 
@@ -34,19 +35,31 @@ function HeroInfo({ hero, faces }) {
         <>
           <div className="hiside">일상{stats?.alterName ? ' · ' + stats.alterName : ''}</div>
           <StatChips items={alterStats} />
-          {alter ? <p>{alter}</p> : null}
+          {alter ? (
+            <p>
+              <RichText text={alter} />
+            </p>
+          ) : null}
         </>
       ) : null}
       <div className="hiside">히어로</div>
       <StatChips items={heroSideStats(stats)} />
-      <p>{hero.textKo || hero.text || '-'}</p>
+      <p>
+        <RichText text={hero.textKo || hero.text || '-'} />
+      </p>
       {faces.map((face, i) => (
         <div key={face.id} className="hiextra">
           <div className="hiside">{cardName(face) !== cardName(hero) ? cardName(face) : '히어로 면 ' + (i + 2)}</div>
           <div className="hitraits">{face.traitsKo || face.traits || ''}</div>
           <StatChips items={heroSideStats(heroStats(face))} />
-          <p>{face.textKo || face.text || '-'}</p>
-          {face.alterTextKo || face.alterText ? <p>{face.alterTextKo || face.alterText}</p> : null}
+          <p>
+            <RichText text={face.textKo || face.text || '-'} />
+          </p>
+          {face.alterTextKo || face.alterText ? (
+            <p>
+              <RichText text={face.alterTextKo || face.alterText} />
+            </p>
+          ) : null}
         </div>
       ))}
     </details>
