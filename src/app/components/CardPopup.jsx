@@ -2,6 +2,7 @@
 import { useState, useEffect, useLayoutEffect, useRef } from '../vendor.js';
 import { FACTION_LABEL, TYPE_LABEL, aspectCount, alterEgoId, cardImage, cardName, costLabel } from '../cards.js';
 import { resourceIcons, StatChips } from './common.jsx';
+import { RichText } from './RichText.jsx';
 import { alterSideStats, heroSideStats, heroStats } from '../heroStats.js';
 
 let popupSeq = 0;
@@ -87,8 +88,14 @@ function CardBody({ card: c }) {
         {resourceIcons(c)}
       </div>
       <div className="cptraits">{c.traitsKo || c.traits || '특성 없음'}</div>
-      <p>{c.textKo || c.text || '효과 텍스트 없음'}</p>
-      {c.textKo && c.text ? <p className="cpen">{c.text}</p> : null}
+      <p>
+        <RichText text={c.textKo || c.text || '효과 텍스트 없음'} />
+      </p>
+      {c.textKo && c.text ? (
+        <p className="cpen">
+          <RichText text={c.text} />
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -114,20 +121,32 @@ function HeroBody({ hero, faces }) {
       </div>
       <div className="cpside">히어로</div>
       <StatChips items={heroSideStats(stats)} />
-      <p>{hero.textKo || hero.text || '-'}</p>
+      <p>
+        <RichText text={hero.textKo || hero.text || '-'} />
+      </p>
       {alter || alterStats.length ? (
         <>
           <div className="cpside">일상{stats?.alterName ? ' · ' + stats.alterName : ''}</div>
           <StatChips items={alterStats} />
-          {alter ? <p>{alter}</p> : null}
+          {alter ? (
+            <p>
+              <RichText text={alter} />
+            </p>
+          ) : null}
         </>
       ) : null}
       {faces.map((face, i) => (
         <div key={face.id} className="cpface">
           <div className="cpside">{cardName(face) !== cardName(hero) ? cardName(face) : '히어로 면 ' + (i + 2)}</div>
           <StatChips items={heroSideStats(heroStats(face))} />
-          <p>{face.textKo || face.text || '-'}</p>
-          {face.alterTextKo || face.alterText ? <p>{face.alterTextKo || face.alterText}</p> : null}
+          <p>
+            <RichText text={face.textKo || face.text || '-'} />
+          </p>
+          {face.alterTextKo || face.alterText ? (
+            <p>
+              <RichText text={face.alterTextKo || face.alterText} />
+            </p>
+          ) : null}
         </div>
       ))}
     </div>

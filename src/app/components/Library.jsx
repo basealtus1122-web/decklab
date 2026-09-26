@@ -3,6 +3,7 @@ import { Checkbox, Icon } from '../vendor.js';
 import { DATA_DATE } from '../config.js';
 import { FACTION_LABEL, TYPE_LABEL, SORTS, cardImage, cardName, costLabel } from '../cards.js';
 import { Picker, QuantityButtons, resourceIcons } from './common.jsx';
+import { RichText } from './RichText.jsx';
 
 const COST_OPTIONS = [
   ['all', '모든 비용'],
@@ -174,7 +175,9 @@ export function Library({ cards, packs, shown, filters, setFilter, resetFilters,
                 </button>
                 <div className="english">{c.nameKo ? c.name : '영문 카드 · 시트 번역 미연결'}</div>
                 <div className="traits">{c.traitsKo || c.traits || '특성 없음'}</div>
-                <p className="effect">{c.textKo || c.text || '효과 텍스트 없음'}</p>
+                <p className="effect">
+                  <RichText text={c.textKo || c.text || '효과 텍스트 없음'} />
+                </p>
               </div>
               <div className="cardbottom">
                 <button className="detailbutton" onClick={() => onOpenCard(c)}>

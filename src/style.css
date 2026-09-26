@@ -172,6 +172,60 @@ input:focus-visible,
   fill: #63c07f;
 }
 
+/* 효과 글자 속 아이콘 ([에너지] [별] [위기] …) 과 특성 ([[공중]]) */
+.ico {
+  display: inline-block;
+  width: 1.1em;
+  height: 1.1em;
+  margin: 0 0.06em;
+  vertical-align: -0.2em;
+  line-height: 1;
+}
+.ico svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+.ico-physical {
+  color: #e0655a;
+}
+.ico-energy {
+  color: #e6b143;
+}
+.ico-mental {
+  color: #6fa8e0;
+}
+.ico-wild {
+  color: #63c07f;
+}
+.ico-star {
+  color: #f2c94c;
+}
+.ico-crisis,
+.ico-cost {
+  color: #f65c65;
+}
+.ico-acceleration {
+  color: #f08a4b;
+}
+.ico-boost {
+  color: #f2a93b;
+}
+.ico-amplify {
+  color: #b07cf0;
+}
+.ico-hazard {
+  color: #59bc95;
+}
+.ico-per_hero,
+.ico-unique {
+  color: var(--dl-text);
+}
+.trait {
+  font-weight: 700;
+}
+
 /* 성향 글자색 */
 .ctfac {
   font-size: 12px;
