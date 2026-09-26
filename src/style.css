@@ -1,0 +1,2262 @@
+/* 덱랩 스타일
+ * Tailwind(src/vendor/tailwind.css) 다음에 들어간다. 레이어 밖 규칙이라 Tailwind 유틸리티보다 우선한다.
+ * 순서: 색 토큰 → 기본 → 배치 → 카드 목록 → 카드 보기 → 팝업·창 → 덱 패널 → 카드 상세 → 화면 폭별 조정
+ */
+
+/* ---------------------------------------------------------------- 색 토큰 */
+:root {
+  /* shadcn/ui 테마 */
+  --background: #10151e;
+  --foreground: #eff3fa;
+  --card: #19212d;
+  --card-foreground: #eff3fa;
+  --popover: #202a39;
+  --popover-foreground: #eff3fa;
+  --primary: #f34c4f;
+  --primary-foreground: #fff;
+  --secondary: #263244;
+  --secondary-foreground: #fff;
+  --muted: #1d2734;
+  --muted-foreground: #a8b6ca;
+  --accent: #304058;
+  --accent-foreground: #fff;
+  --border: #334055;
+  --input: #40516b;
+  --ring: #ff7678;
+  --radius: 0.6rem;
+  --font-geist-sans: Arial, "Malgun Gothic", sans-serif;
+
+  /* 덱랩 */
+  --dl-line: #2c3a4f;
+  --dl-line2: #40516b;
+  --dl-surf: #1b2536;
+  --dl-surf2: #253246;
+  --dl-text: #dee7f5;
+  --dl-dim: #9eafc8;
+  --dl-dim2: #7d90ab;
+  --dl-accent: #ee4d53;
+
+  /* 성향 */
+  --f-aggression: #f65c65;
+  --f-justice: #e8c44e;
+  --f-leadership: #639ae8;
+  --f-protection: #59bc95;
+  --f-pool: #b07cf0;
+  --f-basic: #9eafc8;
+  --f-hero: #57b394;
+}
+
+/* ---------------------------------------------------------------- 기본 */
+* {
+  box-sizing: border-box;
+}
+body {
+  background: var(--background);
+  color: var(--foreground);
+  margin: 0;
+  font-family: Arial, Malgun Gothic, sans-serif;
+  font-size: 16px;
+}
+button {
+  font: inherit;
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+input {
+  font: inherit;
+  border: 1px solid var(--input);
+  color: #fff;
+  background: #19212d;
+  border-radius: 8px;
+  width: 100%;
+  padding: 13px;
+}
+/* 위 input 규칙이 Tailwind 의 sr-only(화면에 안 보이게)보다 우선해서 숨긴 파일 칸이 화면 폭만큼 튀어나가던 것을 막는다 */
+input.sr-only {
+  width: 1px;
+  padding: 0;
+  border: 0;
+}
+a {
+  color: #bfd5fa;
+  text-underline-offset: 4px;
+}
+h2 {
+  font-size: 20px;
+}
+summary:focus-visible {
+  outline: 2px solid #ff8587;
+  outline-offset: 4px;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+[role="combobox"]:focus-visible {
+  outline: 2px solid var(--dl-accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.eyebrow {
+  letter-spacing: 2px;
+  color: #a8b6ca;
+  font-size: 12px;
+  font-weight: 700;
+}
+.primary,
+.secondary {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 7px 10px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.primary {
+  color: #fff;
+  background: #ee4d53;
+  border: 1px solid #ff696e;
+}
+.secondary {
+  color: #e0eafa;
+  background: #253246;
+  border: 1px solid #40516b;
+}
+
+/* 자원 아이콘 */
+.reslist {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+  vertical-align: middle;
+  margin-left: 7px;
+}
+.res {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: content-box;
+  border-radius: 0;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
+  color: #10161f;
+  background: none !important;
+}
+.res svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.res-physical svg {
+  fill: #e0655a;
+}
+.res-energy svg {
+  fill: #e6b143;
+}
+.res-mental svg {
+  fill: #6fa8e0;
+}
+.res-wild svg {
+  fill: #63c07f;
+}
+
+/* 성향 글자색 */
+.ctfac {
+  font-size: 12px;
+  font-weight: 600;
+}
+.ctfac.f-aggression {
+  color: var(--f-aggression);
+}
+.ctfac.f-justice {
+  color: var(--f-justice);
+}
+.ctfac.f-leadership {
+  color: var(--f-leadership);
+}
+.ctfac.f-protection {
+  color: var(--f-protection);
+}
+.ctfac.f-pool {
+  color: var(--f-pool);
+}
+.ctfac.f-basic {
+  color: var(--f-basic);
+}
+.ctfac.f-hero {
+  color: var(--f-hero);
+}
+/* 일부 브라우저 확장이 글자색을 바꾸는 것을 막는다 */
+.tg,
+.ctfac,
+.oncode b,
+.mypick em {
+  -webkit-text-fill-color: currentColor;
+}
+
+/* ---------------------------------------------------------------- 배치 */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 22px 36px;
+  border-bottom: 1px solid #334055;
+}
+.topbar > span {
+  color: #a8b6ca;
+  font-size: 14px;
+}
+.apptitle {
+  font-weight: 600;
+}
+.mobilebreak {
+  display: none;
+}
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  gap: 22px;
+  align-items: start;
+  max-width: 2400px;
+  margin: auto;
+  padding: 18px 24px;
+}
+
+/* ---------------------------------------------------------------- 카드 목록: 머리, 검색, 필터 */
+.libraryhead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 4px;
+  padding-top: 4px;
+}
+.catalog-count {
+  white-space: nowrap;
+  color: #b5c6df;
+  background: #222d3d;
+  border: 1px solid #36465e;
+  border-radius: 30px;
+  padding: 7px 12px;
+  font-size: 13px;
+}
+.searchbox {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding-left: 16px;
+  color: #99acc7;
+  background: #19212d;
+  border: 1px solid #40516b;
+  border-radius: 8px;
+}
+.searchbox input {
+  background: 0 0;
+  border: 0;
+  outline: none;
+}
+.searchbox input::placeholder {
+  color: var(--dl-dim2);
+}
+.searchbox:focus-within {
+  outline: 2px solid #f34c4f;
+}
+.filters {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.6fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+.picker {
+  text-align: left;
+  white-space: normal !important;
+  background: #19212d !important;
+  width: 100% !important;
+  min-height: 42px !important;
+  font-size: 14px !important;
+}
+
+/* 유형·성향 토글 */
+.togglebar {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 10px 0 2px;
+}
+.tgroup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.tglabel {
+  min-width: 30px;
+  color: var(--dl-dim2);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  opacity: 0.55;
+}
+.tg {
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.4;
+  padding: 4px 12px;
+  cursor: pointer;
+  border-radius: 999px;
+  border: 1px solid var(--dl-line2);
+  background: var(--dl-surf);
+  color: var(--dl-dim);
+  transition:
+    background 0.12s,
+    color 0.12s,
+    border-color 0.12s;
+}
+.tg:hover {
+  opacity: 0.8;
+  border-color: var(--dl-dim2);
+  color: var(--dl-text);
+  background: var(--dl-surf2);
+}
+.tg.on {
+  opacity: 1;
+  background: var(--dl-text);
+  border-color: var(--dl-text);
+  color: #141c28;
+  font-weight: 600;
+}
+.tg.all {
+  font-weight: 600;
+}
+.tg.asp-aggression {
+  --asp: var(--f-aggression);
+  --asp-ink: #1d0c0d;
+}
+.tg.asp-justice {
+  --asp: var(--f-justice);
+  --asp-ink: #1d1705;
+}
+.tg.asp-leadership {
+  --asp: var(--f-leadership);
+  --asp-ink: #06121f;
+}
+.tg.asp-protection {
+  --asp: var(--f-protection);
+  --asp-ink: #05180f;
+}
+.tg.asp-pool {
+  --asp: var(--f-pool);
+  --asp-ink: #14061f;
+}
+.tg.asp-basic {
+  --asp: var(--f-basic);
+  --asp-ink: #0f1620;
+}
+.tg[class*="asp-"] {
+  color: var(--asp);
+}
+.tg[class*="asp-"].on {
+  background: var(--asp);
+  border-color: var(--asp);
+  color: var(--asp-ink);
+}
+
+/* 정렬, 보기 전환, 개수 */
+.filtermeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin: 10px 0 0;
+  color: #adbed5;
+  font-size: 14px;
+}
+.filtermeta label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.filtermeta > span {
+  margin-left: auto;
+}
+.filtermeta button {
+  color: #adbed5;
+  background: 0 0;
+  border: 0;
+}
+.sortbar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--dl-dim2);
+}
+.sortsel,
+.sortdir {
+  font: inherit;
+  font-size: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  background: var(--dl-surf);
+  border: 1px solid var(--dl-line2);
+}
+.sortsel {
+  padding: 4px 6px;
+  color: var(--dl-text);
+}
+.sortdir {
+  padding: 4px 10px;
+  color: var(--dl-dim);
+}
+.sortdir:hover {
+  color: var(--dl-text);
+  background: var(--dl-surf2);
+}
+.viewtoggle {
+  display: inline-flex;
+  border: 1px solid var(--dl-line2);
+  border-radius: 7px;
+  overflow: hidden;
+}
+.viewtoggle button {
+  font: inherit;
+  font-size: 12px;
+  padding: 4px 12px;
+  background: transparent;
+  border: 0;
+  color: var(--dl-dim);
+  cursor: pointer;
+}
+.viewtoggle button.on {
+  background: var(--dl-text);
+  color: #141c28;
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------- 카드 목록: 표 */
+.cardtable {
+  margin-top: 14px;
+  border: 1px solid var(--dl-line);
+  border-radius: 9px;
+  overflow: hidden;
+}
+.ctrow {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr) 62px 42px 76px 60px;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 11px;
+  border-bottom: 1px solid var(--dl-line);
+  font-size: 13px;
+  color: var(--dl-text);
+}
+.ctrow:last-child {
+  border-bottom: 0;
+}
+.ctrow:hover {
+  background: #1b2536;
+}
+.ctrow.in {
+  background: #19283a;
+}
+.cthead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #141d2b;
+  color: var(--dl-dim2);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+.cthead span:nth-child(3),
+.cthead span:nth-child(4) {
+  text-align: center;
+}
+.ctname {
+  min-width: 0;
+  padding: 2px 0;
+  background: 0 0;
+  border: 0;
+  color: var(--dl-text);
+  font: inherit;
+  font-size: 13.5px;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ctname:hover {
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.ctres {
+  display: flex;
+  justify-content: center;
+}
+.ctres .reslist {
+  margin-left: 0;
+}
+.ctcost {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: var(--dl-dim);
+}
+.cttype {
+  color: var(--dl-dim2);
+  font-size: 12px;
+}
+
+/* +/− 카운터 (덱 목록, 카드 보기의 수량 칸).
+   카드 보기에서는 안에 수량 버튼이 들어가므로 아래 .qtybtns 규칙이 뒤에 와서 덮어써야 한다. */
+.counter {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 9px;
+}
+.counter button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  color: #eaf1fe;
+  background: #253246;
+  border: 1px solid #3b4d66;
+  border-radius: 5px;
+}
+.counter b {
+  min-width: 10px;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* 수량 버튼 0 1 2 3 */
+.qtybtns {
+  display: inline-flex;
+  flex: none;
+  width: max-content;
+  justify-self: start;
+  align-self: center;
+  border: 1px solid var(--dl-line2);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.qtybtns button {
+  flex: 0 0 24px;
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  padding: 0;
+  font: inherit;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  background: transparent;
+  border: 0;
+  border-right: 1px solid var(--dl-line2);
+  color: var(--dl-dim);
+  cursor: pointer;
+}
+.qtybtns button:last-child {
+  border-right: 0;
+}
+.qtybtns button:hover:not(:disabled) {
+  background: var(--dl-surf2);
+  color: var(--dl-text);
+}
+.qtybtns button.on {
+  background: var(--dl-text);
+  color: #141c28;
+  font-weight: 700;
+}
+.qtybtns button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.qtyfixed {
+  color: var(--dl-dim2);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------- 카드 보기 */
+.cardgrid {
+  /* 카드 최소 폭이 화면 폭을 따라 250~380px 로 커진다. 열 수는 남는 폭에 맞춰 정해진다 */
+  --card-w: clamp(250px, 15vw, 380px);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(var(--card-w), 100%), 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+.gamecard {
+  container-type: inline-size;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 315px;
+  padding: 19px;
+  background: #19212d;
+  border: 1px solid #334055;
+  border-top: 4px solid #8fa1b9;
+  border-radius: 10px;
+  transition:
+    border-color 0.15s,
+    transform 0.15s;
+}
+.gamecard:hover {
+  border-bottom-color: #566c8a;
+  border-left-color: #566c8a;
+  border-right-color: #566c8a;
+  transform: translateY(-2px);
+}
+.gamecard.aggression {
+  border-top-color: var(--f-aggression);
+}
+.gamecard.justice {
+  border-top-color: var(--f-justice);
+}
+.gamecard.leadership {
+  border-top-color: var(--f-leadership);
+}
+.gamecard.protection {
+  border-top-color: var(--f-protection);
+}
+.gamecard.pool {
+  border-top-color: var(--f-pool);
+}
+.gamecard p {
+  color: #d2dbe9;
+  white-space: pre-line;
+  font-size: clamp(15px, 4.4cqi, 17px);
+  line-height: 1.7;
+}
+.gamecard small {
+  text-transform: uppercase;
+  color: #acbdd3;
+  font-size: 12px;
+}
+.gamecard h2 {
+  margin: 13px 0 5px;
+  padding-right: 20px;
+  font-size: clamp(18px, 5.8cqi, 22px);
+  line-height: 1.45;
+}
+.gamecard .reslist {
+  margin-left: 8px;
+}
+.cost {
+  float: right;
+  display: grid;
+  place-items: center;
+  min-width: 32px;
+  height: 32px;
+  font-weight: 700;
+  background: #0e141e;
+  border: 1px solid #43516b;
+  border-radius: 50%;
+}
+.gamecard .cost {
+  margin-left: 6px;
+}
+.cardtitle {
+  display: block;
+  padding: 0;
+  color: inherit;
+  text-align: left;
+  background: 0 0;
+  border: 0;
+}
+.english {
+  color: #9cadc5;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.traits {
+  margin-top: 14px;
+  color: #aabbd3;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.gamecard .effect {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 6;
+  overflow: hidden;
+  margin: 10px 0 22px;
+}
+.cardbottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid #2b374a;
+}
+.cardbottom .qtybtns {
+  margin-left: auto;
+}
+.detailbutton {
+  padding: 0;
+  color: #aebfd7;
+  background: 0 0;
+  border: 0;
+  font-size: 13px;
+}
+
+/* 빈 결과, 더 보기, 바닥글 */
+.empty {
+  padding: 55px 20px;
+  text-align: center;
+  color: #b7c8df;
+}
+.empty svg,
+.empty .secondary {
+  margin: auto;
+}
+.loadmore {
+  min-width: 240px;
+  margin: 24px auto;
+}
+footer {
+  margin-top: 30px;
+  padding: 18px 0;
+  color: #8fa3bf;
+  border-top: 1px solid #2c384b;
+  font-size: 12px;
+  line-height: 1.8;
+}
+footer p {
+  margin: 0 0 7px;
+}
+
+/* ---------------------------------------------------------------- 카드 팝업 */
+.cardpop {
+  position: fixed;
+  z-index: 90;
+  width: 340px;
+  max-height: min(320px, 92vh);
+  overflow: hidden;
+  pointer-events: none;
+  padding: 12px 14px;
+  background: #101724;
+  border: 1px solid var(--dl-line2);
+  border-radius: 10px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+  color: var(--dl-text);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+.cphead {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 7px;
+}
+.cphead b {
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+.cphead span {
+  color: var(--dl-dim2);
+  font-size: 11.5px;
+}
+.cpmeta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 11.5px;
+  color: var(--dl-dim);
+}
+.cpmeta .reslist {
+  margin-left: 0;
+}
+.cptraits {
+  margin-bottom: 5px;
+  color: var(--dl-dim);
+}
+.cardpop p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+.cardpop .cpen {
+  margin-top: 8px;
+  padding-top: 7px;
+  border-top: 1px solid var(--dl-line);
+  color: var(--dl-dim2);
+  font-size: 11.5px;
+}
+
+/* ---------------------------------------------------------------- 히어로 선택 창 */
+.heromodal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(7, 11, 18, 0.72);
+  backdrop-filter: blur(2px);
+}
+.hmbox {
+  display: flex;
+  flex-direction: column;
+  width: min(1100px, 100%);
+  max-height: 88vh;
+  overflow: hidden;
+  background: #121a26;
+  border: 1px solid var(--dl-line2);
+  border-radius: 14px;
+}
+.hmhead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--dl-line);
+}
+.hmhead h2 {
+  margin: 0;
+  font-size: 17px;
+  color: var(--dl-text);
+}
+.hmsearch {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 11px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--dl-text);
+  background: var(--dl-surf);
+  border: 1px solid var(--dl-line2);
+  border-radius: 8px;
+}
+.hmclose {
+  padding: 2px 6px;
+  background: 0 0;
+  border: 0;
+  color: var(--dl-dim);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+.hmclose:hover {
+  color: var(--dl-text);
+}
+.hmgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 9px;
+  padding: 14px 18px;
+  overflow: auto;
+}
+.hmcard {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  text-align: left;
+  font: inherit;
+  color: var(--dl-text);
+  background: var(--dl-surf);
+  border: 1px solid var(--dl-line);
+  border-radius: 9px;
+  cursor: pointer;
+}
+.hmcard:hover {
+  border-color: var(--dl-dim2);
+  background: var(--dl-surf2);
+}
+.hmcard.on {
+  border-color: var(--dl-accent);
+  background: rgba(238, 77, 83, 0.12);
+}
+.hmcard b {
+  font-size: 14px;
+}
+.hmsub {
+  color: var(--dl-dim);
+  font-size: 11.5px;
+}
+.hmtr {
+  color: var(--dl-dim2);
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hmpack {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+  color: var(--dl-dim2);
+  font-size: 10.5px;
+}
+.hmpack em {
+  padding: 0 4px;
+  font-style: normal;
+  color: #e0b052;
+  border: 1px solid #e0b052;
+  border-radius: 4px;
+}
+.hmfoot {
+  margin: 0;
+  padding: 10px 18px;
+  border-top: 1px solid var(--dl-line);
+  color: var(--dl-dim2);
+  font-size: 12px;
+}
+
+/* ---------------------------------------------------------------- 덱 패널 */
+.deckpanel {
+  position: sticky;
+  top: 12px;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 24px);
+  overflow: auto;
+  padding: 16px 18px;
+  background: #151d29;
+  border: 1px solid #334055;
+  border-radius: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: #465c7d transparent;
+}
+/* 패널 안 순서: 위 칸들(1) → 덱 목록(2) → 비우기(3) → 규칙 검사(4, 5) → 분석(6) → 온라인(7) → 파일(8, 9) */
+.deckpanel > * {
+  order: 1;
+  flex: none;
+}
+.deckhead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  color: #aabbcf;
+}
+.deckname {
+  margin-bottom: 4px;
+  padding: 13px 0 17px;
+  background: 0 0;
+  border: 0;
+  border-bottom: 1px solid #334055;
+  border-radius: 0;
+  font-size: 23px;
+  font-weight: 700;
+}
+.fieldlabel {
+  display: block;
+  margin: 13px 0 7px;
+  color: #a8b9d2;
+  font-size: 13px;
+}
+.heropick {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 12px;
+  text-align: left;
+  font: inherit;
+  color: var(--dl-text);
+  background: var(--dl-surf);
+  border: 1px solid var(--dl-line2);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.heropick:hover {
+  border-color: var(--dl-dim2);
+  background: var(--dl-surf2);
+}
+.heropick b {
+  font-size: 14.5px;
+}
+.heropick span {
+  color: var(--dl-dim2);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.heropick em {
+  flex: none;
+  margin-left: auto;
+  font-style: normal;
+  font-size: 11.5px;
+  color: var(--dl-dim2);
+}
+
+/* 덱 목록만 보기 전환 */
+.compacttoggle {
+  margin-left: auto;
+  margin-right: 10px;
+  padding: 3px 10px;
+  font: inherit;
+  font-size: 11.5px;
+  color: var(--dl-dim);
+  background: transparent;
+  border: 1px solid var(--dl-line2);
+  border-radius: 999px;
+}
+.compacttoggle:hover,
+.compacttoggle.on {
+  color: var(--dl-text);
+  background: var(--dl-surf2);
+  border-color: var(--dl-dim2);
+}
+.deckmini {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 0 8px;
+  border-bottom: 1px solid var(--dl-line);
+}
+.deckmini b {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 15px;
+}
+.deckmini span {
+  flex: none;
+  color: var(--dl-dim2);
+  font-size: 12px;
+}
+.deckmini strong {
+  flex: none;
+  margin-left: auto;
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+.deckmini strong.short {
+  color: #f2d5a4;
+}
+.deckmini small {
+  color: var(--dl-dim2);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+/* 일상 / 히어로 능력 접는 칸 */
+.heroinfo {
+  margin: 4px 0 0;
+  padding: 0;
+  color: var(--dl-text);
+  background: var(--dl-surf);
+  border: 1px solid var(--dl-line);
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.heroinfo > summary {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 13px;
+  list-style: none;
+  cursor: pointer;
+  color: var(--dl-text);
+  font-size: 14px;
+  font-weight: 700;
+}
+.heroinfo > summary::-webkit-details-marker {
+  display: none;
+}
+.heroinfo > summary::before {
+  content: "\25B8";
+  color: var(--dl-dim2);
+  font-size: 11px;
+}
+.heroinfo[open] > summary::before {
+  content: "\25BE";
+}
+.heroinfo[open] > summary {
+  margin-bottom: 9px;
+  border-bottom: 1px solid var(--dl-line);
+}
+.heroinfo > *:not(summary) {
+  padding-left: 13px;
+  padding-right: 13px;
+}
+.heroinfo > *:last-child {
+  padding-bottom: 12px;
+}
+.heroinfo .hitraits {
+  margin: 1px 0 2px;
+  color: var(--dl-dim);
+  font-size: 12px;
+}
+.heroinfo .hiside {
+  margin-top: 9px;
+  color: var(--dl-dim2);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.heroinfo p {
+  margin: 3px 0 0;
+  white-space: pre-wrap;
+  color: var(--dl-text);
+  line-height: 1.65;
+}
+.heroinfo .hiextra {
+  margin-top: 11px;
+  padding-top: 9px;
+  border-top: 1px solid var(--dl-line);
+  opacity: 0.95;
+}
+.heroinfo .hiextra .hiside {
+  margin-top: 0;
+  color: var(--dl-text);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  opacity: 0.8;
+}
+.aspectfixed {
+  padding: 10px 12px;
+  color: var(--dl-text);
+  background: var(--dl-surf);
+  border: 1px solid var(--dl-line2);
+  border-radius: 8px;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+/* 장수, 자원 합계 */
+.decktotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 6px 0 12px;
+}
+.decktotal strong {
+  font-size: 38px;
+}
+.decktotal small {
+  color: #a5b5cc;
+  font-size: 17px;
+  font-weight: 400;
+}
+.decktotal > span {
+  color: #a5b5cc;
+  font-size: 14px;
+}
+.ressum {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 7px 0 0;
+  color: var(--dl-dim);
+  font-size: 12.5px;
+}
+.ressum span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.ressum b {
+  color: var(--dl-text);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.ressum .res {
+  width: 17px;
+  height: 17px;
+}
+
+/* 덱 목록 */
+.decklist {
+  order: 2;
+  margin-top: 6px;
+  padding-right: 3px;
+  scrollbar-width: thin;
+  scrollbar-color: #465c7d transparent;
+}
+.deckgroup {
+  break-inside: avoid;
+}
+.deckgroup h3 {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 2px;
+  padding: 8px 0 5px;
+  color: #a9bbd3;
+  border-bottom: 1px solid #2c3a4f;
+  font-size: 12px;
+}
+.deckgroup h3 span {
+  font-weight: 400;
+}
+.deckgroup.subdeck h3 {
+  color: var(--dl-dim);
+  border-bottom-style: dashed;
+}
+.deckgroup.subdeck .deckcard {
+  color: var(--dl-dim);
+}
+.deckrow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  min-height: 22px;
+}
+.deckcard {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+  padding: 1px 0;
+  color: #dee7f5;
+  text-align: left;
+  background: 0 0;
+  border: 0;
+  font-size: 12.5px;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+.deckcard em {
+  flex: none;
+  min-width: 22px;
+  text-align: right;
+  font-style: normal;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--dl-dim2);
+}
+.deckcard small {
+  color: #92a5bf;
+  font-size: 12px;
+}
+.deckrow .reslist {
+  flex: none;
+  margin-left: auto;
+  gap: 2px;
+}
+.deckrow .res {
+  width: 13px;
+  height: 13px;
+}
+.deckrow .counter {
+  gap: 6px;
+}
+.deckrow .counter button {
+  width: 23px;
+  height: 23px;
+}
+
+/* 추가한 카드 비우기 */
+.clearbtn {
+  order: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 100%;
+  margin: 10px 0 2px;
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--dl-dim);
+  background: transparent;
+  border: 1px solid var(--dl-line2);
+  border-radius: 7px;
+  cursor: pointer;
+}
+.clearbtn:hover:not(:disabled) {
+  color: var(--dl-text);
+  background: var(--dl-surf2);
+  border-color: var(--dl-dim2);
+}
+.clearbtn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.clearbtn b {
+  color: var(--dl-text);
+  font-variant-numeric: tabular-nums;
+}
+.clearbtn.arm {
+  color: #fff;
+  background: rgba(238, 77, 83, 0.16);
+  border-color: var(--dl-accent);
+}
+
+/* 규칙 검사 */
+.validation {
+  order: 4;
+  margin-top: 15px;
+  padding: 8px 10px;
+  background: #222d3d;
+  border: 1px solid #38485f;
+  border-radius: 8px;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.validation b {
+  color: #f2d5a4;
+  font-size: 12.5px;
+}
+.validation p {
+  margin: 5px 0 0;
+  color: #c4cfe0;
+}
+.rulesnote {
+  order: 5;
+  margin: 7px 0 0;
+  color: #9eafc8;
+  font-size: 11.5px;
+  line-height: 1.7;
+}
+.rulesnote summary {
+  cursor: pointer;
+}
+
+/* 덱 분석, 온라인 저장 (접는 칸) */
+details.charts,
+details.online {
+  display: block;
+  margin: 12px 0 0;
+  padding: 0;
+  background: var(--dl-surf);
+  border: 1px solid var(--dl-line);
+  border-radius: 9px;
+}
+details.charts {
+  order: 6;
+}
+details.online {
+  order: 7;
+}
+details.charts > summary,
+details.online > summary {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 12px;
+  list-style: none;
+  cursor: pointer;
+  color: var(--dl-dim);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+details.charts > summary::-webkit-details-marker,
+details.online > summary::-webkit-details-marker {
+  display: none;
+}
+details.charts > summary::before,
+details.online > summary::before {
+  content: "\25B8";
+  font-size: 10px;
+}
+details.charts[open] > summary::before,
+details.online[open] > summary::before {
+  content: "\25BE";
+}
+details.charts[open] > summary,
+details.online[open] > summary {
+  color: var(--dl-text);
+  border-bottom: 1px solid var(--dl-line);
+}
+details.charts > *:not(summary),
+details.online > *:not(summary) {
+  margin-left: 12px;
+  margin-right: 12px;
+}
+details.charts > *:last-child,
+details.online > *:last-child {
+  margin-bottom: 12px;
+}
+
+/* 차트 */
+details.charts .chart {
+  margin-top: 10px;
+}
+.charttitle {
+  margin-bottom: 8px;
+  color: var(--dl-dim);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  height: 86px;
+}
+.bar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 3px;
+  height: 100%;
+  min-width: 0;
+}
+.bar b {
+  color: var(--dl-text);
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.barfill {
+  width: 100%;
+  max-width: 26px;
+  min-height: 2px;
+  border-radius: 3px 3px 0 0;
+}
+.bar small {
+  max-width: 100%;
+  color: var(--dl-dim2);
+  font-size: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 온라인 저장 */
+.online .memo {
+  width: 100%;
+  min-height: 62px;
+  padding: 8px 10px;
+  resize: vertical;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--dl-text);
+  background: var(--dl-surf);
+  border: 1px solid var(--dl-line2);
+  border-radius: 7px;
+}
+.online .memo::placeholder,
+.onload input::placeholder {
+  color: var(--dl-dim2);
+}
+.pubchk {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--dl-dim);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.onrow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+.onrow .primary:only-child {
+  grid-column: 1/-1;
+}
+.oncode {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  padding: 9px 10px;
+  background: var(--dl-surf);
+  border: 1px solid var(--dl-line);
+  border-radius: 8px;
+}
+.oncode span {
+  color: var(--dl-dim2);
+  font-size: 11.5px;
+}
+.oncode b {
+  color: var(--dl-text);
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 15px;
+  letter-spacing: 0.06em;
+}
+.oncode small {
+  padding: 0 5px;
+  color: #e0b052;
+  border: 1px solid #e0b052;
+  border-radius: 4px;
+  font-size: 11px;
+}
+.oncode button {
+  padding: 3px 9px;
+  font: inherit;
+  font-size: 12px;
+  color: var(--dl-dim);
+  background: transparent;
+  border: 1px solid var(--dl-line2);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.oncode button:hover:not(:disabled) {
+  color: var(--dl-text);
+  background: var(--dl-surf2);
+}
+.oncode .ondel {
+  margin-left: auto;
+}
+.oncode .ondel.arm {
+  color: #fff;
+  background: rgba(238, 77, 83, 0.16);
+  border-color: var(--dl-accent);
+}
+.onload {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+.onload input {
+  min-width: 0;
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 13px;
+  text-transform: uppercase;
+  color: var(--dl-text);
+  background: var(--dl-surf);
+  border: 1px solid var(--dl-line2);
+  border-radius: 7px;
+}
+.onload input:placeholder-shown {
+  text-transform: none;
+}
+.onstatus {
+  margin: 0;
+  color: var(--dl-dim);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+.onstatus.busy {
+  color: #e0b052;
+}
+.mydecks {
+  background: var(--dl-surf);
+  border: 1px solid var(--dl-line);
+  border-radius: 8px;
+}
+.mydecks summary {
+  padding: 8px 11px;
+  color: var(--dl-dim);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.myrow {
+  display: flex;
+  align-items: center;
+  border-top: 1px solid var(--dl-line);
+}
+.mypick {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  padding: 7px 11px;
+  text-align: left;
+  font: inherit;
+  font-size: 13px;
+  color: var(--dl-text);
+  background: 0 0;
+  border: 0;
+  cursor: pointer;
+}
+.mypick:hover:not(:disabled) {
+  background: var(--dl-surf2);
+}
+.mypick em {
+  flex: none;
+  font-style: normal;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 11.5px;
+  color: var(--dl-dim2);
+}
+.mypick span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mypick small {
+  flex: none;
+  margin-left: auto;
+  color: var(--dl-dim2);
+  font-size: 11.5px;
+}
+.forget {
+  padding: 4px 11px;
+  color: var(--dl-dim2);
+  background: 0 0;
+  border: 0;
+  font-size: 16px;
+  cursor: pointer;
+}
+.forget:hover {
+  color: var(--dl-text);
+}
+
+/* 파일 저장·불러오기 */
+.saveactions {
+  order: 8;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+.text-export {
+  grid-column: 1/-1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 7px;
+  padding: 5px;
+  color: #acbdd5;
+  background: 0 0;
+  border: 0;
+  font-size: 12px;
+}
+.savehint {
+  order: 9;
+  margin-top: 6px;
+  color: #8fa3bf;
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.65;
+}
+.notice {
+  color: #b9d7fa;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* ---------------------------------------------------------------- 카드 상세 시트 */
+.carddetail {
+  padding: 25px;
+  overflow: auto;
+  width: min(540px, 100vw) !important;
+  max-width: 540px !important;
+}
+.detailtitle {
+  padding-right: 25px;
+  line-height: 1.4;
+  font-size: 25px !important;
+}
+.detailbody {
+  padding: 0 16px;
+  font-size: 16px;
+  line-height: 1.8;
+}
+.detailbody p {
+  margin: 15px 0 25px;
+  white-space: pre-line;
+}
+.detailbody h3 {
+  color: #a7bad6;
+  font-size: 14px;
+}
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 25px;
+  font-size: 13px;
+}
+.badges span {
+  padding: 3px 10px;
+  background: #304058;
+  border-radius: 5px;
+}
+.badges .resbadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  background: 0 0;
+}
+.metadata {
+  color: #acbed8;
+  font-size: 13px;
+}
+
+/* ---------------------------------------------------------------- 상단 메뉴 */
+.topnav {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+.topnav button {
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--dl-dim);
+  background: var(--dl-surf);
+  border: 1px solid var(--dl-line2);
+  border-radius: 999px;
+}
+.topnav button:hover,
+.topnav button.on {
+  color: var(--dl-text);
+  background: var(--dl-surf2);
+  border-color: var(--dl-dim2);
+}
+
+/* ---------------------------------------------------------------- 팝업 확장: 히어로, 카드 이미지 */
+.cpside {
+  margin-top: 8px;
+  color: var(--dl-dim2);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+}
+.cpface {
+  margin-top: 8px;
+  padding-top: 2px;
+  border-top: 1px solid var(--dl-line);
+}
+.cpface .cpside {
+  color: var(--dl-text);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+.cpaspects {
+  padding: 0 4px;
+  font-style: normal;
+  color: #e0b052;
+  border: 1px solid #e0b052;
+  border-radius: 4px;
+}
+.cardpop.heropop {
+  width: 380px;
+  max-height: min(560px, 92vh);
+}
+.cardpop.heropop p {
+  line-height: 1.65;
+}
+/* 카드 이미지가 있으면: 보통 카드는 왼쪽에 이미지, 히어로는 위에 히어로·일상 두 장 */
+.cardpop.withimg {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  gap: 14px;
+  width: 580px;
+  max-height: min(460px, 92vh);
+}
+.cardpop.heropop.withimg {
+  display: block;
+  width: 420px;
+  max-height: min(720px, 94vh);
+}
+.cpimgs {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.heropop .cpimgs {
+  margin-bottom: 10px;
+}
+.cardimg {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 63 / 88;
+  object-fit: contain;
+  border-radius: 8px;
+  background: var(--dl-surf);
+}
+.heropop .cardimg {
+  flex: 0 0 calc(50% - 4px);
+}
+/* 이미지를 못 불러오면 글자만 보이는 모양으로 돌아간다 */
+.cardpop.withimg:has(.cpimgs:empty) {
+  display: block;
+  width: 340px;
+}
+.cardpop.heropop.withimg:has(.cpimgs:empty) {
+  width: 380px;
+}
+.cpimgs:empty {
+  display: none;
+}
+
+/* 히어로 수치 칩 (src/data/hero-stats.csv 에 값이 있을 때만) */
+.herostats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin: 3px 0 2px;
+  color: var(--dl-dim);
+  font-size: 11.5px;
+}
+.herostats b {
+  color: var(--dl-text);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.heroinfo .herostats {
+  font-size: 12px;
+}
+
+/* ---------------------------------------------------------------- 덱 목록 보기 방식, 전용 표시 */
+.deckview {
+  column-span: all;
+  display: flex;
+  width: max-content;
+  margin: 6px 0 2px;
+  border: 1px solid var(--dl-line2);
+  border-radius: 7px;
+  overflow: hidden;
+}
+.deckview button {
+  padding: 3px 10px;
+  font: inherit;
+  font-size: 11.5px;
+  color: var(--dl-dim);
+  background: transparent;
+  border: 0;
+}
+.deckview button + button {
+  border-left: 1px solid var(--dl-line2);
+}
+.deckview button:hover {
+  color: var(--dl-text);
+}
+.deckview button.on {
+  color: #141c28;
+  background: var(--dl-text);
+  font-weight: 600;
+}
+.deckrow.sig {
+  margin-left: -6px;
+  padding-left: 4px;
+  border-left: 2px solid var(--f-hero);
+}
+.deckrow.sig .deckcard em {
+  color: var(--f-hero);
+}
+.siglegend {
+  column-span: all;
+  margin: 2px 0 0;
+  padding-left: 6px;
+  color: var(--dl-dim2);
+  font-size: 11px;
+  border-left: 2px solid var(--f-hero);
+}
+
+/* ---------------------------------------------------------------- 공개 덱, 인기 통계 창 */
+.hmbox.pdbox,
+.hmbox.stbox {
+  width: min(980px, 100%);
+}
+.hmhead .pdfilters {
+  flex: 1;
+  display: flex;
+  gap: 8px;
+  min-width: 0;
+}
+.pdfilters .sortsel {
+  max-width: 180px;
+  padding: 7px 8px;
+}
+.hmhead .sttabs {
+  margin-right: auto;
+}
+.hmempty,
+.pdempty {
+  grid-column: 1 / -1;
+  margin: 30px 0;
+  color: var(--dl-dim);
+  text-align: center;
+  font-size: 13px;
+}
+.pdbody {
+  padding: 8px 18px 14px;
+  overflow: auto;
+}
+.pdlist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.pdlist.stale {
+  opacity: 0.55;
+}
+.pdlist li {
+  border-bottom: 1px solid var(--dl-line);
+}
+.pdrow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 120px 96px 48px 82px 82px;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 6px;
+  text-align: left;
+  font: inherit;
+  font-size: 13px;
+  color: var(--dl-text);
+  background: transparent;
+  border: 0;
+}
+.pdrow:hover,
+.pdlist li.open .pdrow {
+  background: var(--dl-surf);
+}
+.pdname {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pdhero {
+  color: var(--dl-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pdaspects {
+  display: flex;
+  gap: 6px;
+}
+.pdcount,
+.pddate {
+  color: var(--dl-dim2);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.pdrow code {
+  color: var(--dl-dim2);
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+}
+.pdpreview {
+  padding: 4px 6px 14px;
+}
+.pdpreview.muted {
+  color: var(--dl-dim);
+  font-size: 12.5px;
+}
+.pdmemo {
+  margin: 4px 0 10px;
+  padding: 8px 10px;
+  color: var(--dl-text);
+  background: var(--dl-surf);
+  border-radius: 7px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+.pdcards {
+  column-width: 200px;
+  column-gap: 20px;
+}
+.pdgroup {
+  break-inside: avoid;
+  margin-bottom: 8px;
+}
+.pdgroup h4 {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 3px;
+  padding: 4px 0 3px;
+  color: #a9bbd3;
+  border-bottom: 1px solid var(--dl-line);
+  font-size: 12px;
+}
+.pdgroup h4 span {
+  font-weight: 400;
+}
+.pdcard {
+  padding: 1px 0;
+  color: var(--dl-text);
+  font-size: 12.5px;
+  cursor: default;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pdcard em {
+  display: inline-block;
+  min-width: 22px;
+  font-style: normal;
+  font-weight: 700;
+  color: var(--dl-dim2);
+}
+.pdcard:hover {
+  color: #fff;
+}
+.pdactions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  color: var(--dl-dim2);
+  font-size: 12px;
+}
+.pdactions .primary {
+  flex: none;
+}
+.pdbody .loadmore {
+  margin: 16px auto 4px;
+}
+
+.stbody {
+  padding-top: 12px;
+}
+.stchips {
+  margin-bottom: 10px;
+}
+.strows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.strows li {
+  display: grid;
+  grid-template-columns: 28px minmax(120px, 200px) minmax(0, 1fr) 150px;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--dl-line);
+  font-size: 13px;
+}
+.strank {
+  color: var(--dl-dim2);
+  font-size: 12px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.stname {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  color: var(--dl-text);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.stname small {
+  color: var(--dl-dim2);
+  font-size: 11px;
+  font-weight: 400;
+}
+.stname small .ctfac {
+  font-size: 11px;
+}
+.stcards .stname {
+  cursor: default;
+}
+.stbar {
+  display: block;
+  height: 10px;
+  background: var(--dl-surf);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.stfill {
+  display: flex;
+  height: 100%;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.stfill > span {
+  flex-basis: 0;
+}
+.stnum {
+  color: var(--dl-text);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.stnum small {
+  margin-left: 4px;
+  color: var(--dl-dim2);
+  font-size: 11px;
+  font-weight: 400;
+}
+.staspects {
+  grid-column: 3 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-top: -2px;
+}
+.staspects .ctfac {
+  font-size: 11px;
+  font-weight: 400;
+}
+.stnote {
+  margin: 12px 0 0;
+  color: var(--dl-dim2);
+  font-size: 11.5px;
+  line-height: 1.6;
+}
+
+/* ---------------------------------------------------------------- 화면 폭별 조정 */
+/* 덱 목록 2열은 덱 패널이 500px 로 넓어질 때만 (그보다 좁으면 카드 이름이 너무 잘린다) */
+@media (min-width: 1700px) {
+  .decklist {
+    column-count: 2;
+    column-gap: 18px;
+  }
+}
+@media (min-width: 1700px) {
+  .workspace {
+    grid-template-columns: minmax(0, 1fr) 500px;
+  }
+}
+
+/* 1150px 이하: 덱 패널을 카드 목록 위로 */
+@media (max-width: 1150px) {
+  .workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .workspace > section.library {
+    order: 1;
+  }
+  .deckpanel {
+    order: -1;
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+/* 760px 이하: 휴대폰 */
+@media (max-width: 760px) {
+  .topbar {
+    padding: 18px;
+  }
+  .topbar > span {
+    font-size: 12px;
+  }
+  .mobilebreak {
+    display: block;
+  }
+  .deckpanel {
+    grid-row: 1;
+  }
+  .catalog-count {
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+  .filters {
+    grid-template-columns: 1fr 1fr;
+  }
+  .filters > :last-child {
+    grid-column: 1/-1;
+  }
+  .filtermeta {
+    gap: 12px;
+  }
+  .ctrow {
+    grid-template-columns: 104px minmax(0, 1fr) 52px 34px;
+    font-size: 12.5px;
+  }
+  .ctrow .cttype,
+  .ctrow .ctfac,
+  .cthead span:nth-child(5),
+  .cthead span:nth-child(6) {
+    display: none;
+  }
+  .gamecard {
+    padding: 15px;
+  }
+  .gamecard h2 {
+    font-size: 17px;
+  }
+  .cardpop {
+    display: none;
+  }
+  .topbar {
+    flex-wrap: wrap;
+  }
+  .hmhead {
+    flex-wrap: wrap;
+  }
+  .hmhead .pdfilters {
+    order: 3;
+    flex-basis: 100%;
+    flex-wrap: wrap;
+  }
+  .pdfilters .hmsearch {
+    flex-basis: 100%;
+  }
+  .pdfilters .sortsel {
+    flex: 1;
+    max-width: none;
+  }
+  .pdrow {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2px 10px;
+  }
+  .pdhero {
+    grid-row: 2;
+  }
+  .pdaspects {
+    grid-row: 2;
+    justify-content: flex-end;
+  }
+  .pdcount,
+  .pddate,
+  .pdrow code {
+    display: none;
+  }
+  .pdactions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .strows li {
+    grid-template-columns: 24px minmax(0, 1fr) 110px;
+  }
+  .strows .stbar {
+    grid-column: 2 / -1;
+    grid-row: 2;
+  }
+  .staspects {
+    grid-column: 2 / -1;
+  }
+  .stnum small {
+    display: block;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .catalog-count {
+    display: none;
+  }
+  .gamecard {
+    min-height: 260px;
+  }
+  .carddetail {
+    padding: 15px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

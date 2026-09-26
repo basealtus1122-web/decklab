@@ -2,5 +2,8 @@
 *.xlsx
 ko_marvelcdb_all_cards.json
 *.backup.html
-# 편집용 원본. 배포본은 index.html
+# 예전 편집용 원본. 이제는 src/ 를 고치고 npm run build 로 index.html 을 만든다
 marvel-champions-decklab-ko.html
+
+# 빌드 도구
+node_modules/
